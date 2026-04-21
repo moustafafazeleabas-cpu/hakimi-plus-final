@@ -564,15 +564,32 @@ useEffect(() => {
     }
   };
 
-  const validerCommande = async (e) => {
+const validerCommande = async (e) => {
     e.preventDefault();
-    if (panier.length === 0) return alert("Votre panier est vide !");
-    if (formClient.type_livraison === "TANA" && !formClient.quartier)
-      return alert("Veuillez sélectionner un quartier.");
-    if (formClient.type_livraison === "PROVINCE" && !formClient.ville)
-      return alert("Veuillez indiquer la ville.");
-    if (!formClient.methode_paiement)
-      return alert("Veuillez sélectionner un moyen de paiement.");
+
+    if (!panier || panier.length === 0) {
+      alert("Votre panier est vide !");
+      return;
+    }
+
+    if (isSubmitting) {
+      return;
+    }
+
+    if (formClient.type_livraison === "TANA" && !formClient.quartier) {
+      alert("Veuillez sélectionner un quartier.");
+      return;
+    }
+
+    if (formClient.type_livraison === "PROVINCE" && !formClient.ville) {
+      alert("Veuillez indiquer la ville.");
+      return;
+    }
+
+    if (!formClient.methode_paiement) {
+      alert("Veuillez sélectionner un moyen de paiement.");
+      return;
+    }
     // --- VÉRIFICATION DU NUMÉRO PRINCIPAL ---
     const numeroEpuré = formClient.whatsapp.replace(/[^0-9]/g, "");
     const prefixesValides = ["032", "033", "034", "037", "038"];

@@ -1346,8 +1346,7 @@ if (isCheckingMaintenance) {
               </div>
             ) : (
              <>
-              
-              <>
+             
                 {/* CARROUSEL 100% VISIBLE (Aucune coupure) */}
                 <div className="w-full relative group h-[160px] sm:h-[300px] lg:h-[400px] bg-white overflow-hidden flex items-center justify-center border-b border-gray-100">
                   {carouselDynamicImages.map((imgUrl, idx) => (

@@ -1044,21 +1044,19 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
   };
 if (isCheckingMaintenance) {
     return (
-      <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center overflow-hidden">
-        <div className="flex flex-col items-center animate-pulse">
-          {/* Ton logo officiel qui respire */}
-          <img 
-            src={LOGO_URL} 
-            alt="Hakimi Plus" 
-            className="h-20 md:h-24 object-contain mb-8" 
-          />
-          
-          {/* Spinner ultra-fin et professionnel */}
-          <svg className="w-6 h-6 text-[#800020] animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"></circle>
-            <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-          </svg>
+      <div className="fixed inset-0 bg-[#f8fafc] z-[9999] flex flex-col items-center justify-center">
+        {/* Ton logo beaucoup plus grand avec une belle ombre */}
+        <img 
+          src={LOGO_URL} 
+          alt="Hakimi Plus" 
+          className="h-32 md:h-48 object-contain mb-10 drop-shadow-2xl animate-pulse" 
+        />
+        
+        {/* Barre de progression premium façon Apple */}
+        <div className="w-48 h-1.5 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+          <div className="h-full bg-[#800020] rounded-full animate-pulse" style={{ width: "65%" }}></div>
         </div>
+        <p className="text-[9px] font-black text-gray-400 mt-4 uppercase tracking-[0.3em]">Chargement</p>
       </div>
     );
   }
@@ -2148,56 +2146,46 @@ if (isCheckingMaintenance) {
                   </div>
                 )}
               </div>
-              <div className="md:w-1/2 p-6 md:p-10 flex flex-col justify-between">
-                <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
-                    {produitSelectionne.categorie_web || "Divers"}
-                  </p>
-                  <h2 className="text-2xl md:text-3xl font-black text-gray-800 mb-4">
-                    {produitSelectionne.nom}
-                  </h2>
-                  <div className="mb-6">
-                    {produitSelectionne.prix_promo &&
-                    new Date(produitSelectionne.promo_debut) <= new Date() &&
-                    new Date(produitSelectionne.promo_fin) >= new Date() ? (
-                      <div className="flex items-center gap-3">
-                        <p className="text-xl font-bold text-gray-400 line-through">
-                          {formatAr(produitSelectionne.prix_vente)} Ar
-                        </p>
-                        <p className="text-3xl font-black text-red-600">
-                          {formatAr(produitSelectionne.prix_promo)} Ar
-                        </p>
-                        <span className="bg-red-600 text-white text-[10px] px-2 py-1 rounded-lg font-black uppercase animate-pulse">
-                          Promo !
-                        </span>
-                      </div>
-                    ) : (
-                      <p className="text-3xl font-black text-[#800020]">
+              <div className="md:w-1/2 p-6 md:p-10 flex flex-col">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                  {produitSelectionne.categorie_web || "Divers"}
+                </p>
+                <h2 className="text-2xl md:text-3xl font-black text-gray-800 mb-4">
+                  {produitSelectionne.nom}
+                </h2>
+                
+                {/* 1. LE PRIX (Immédiatement visible) */}
+                <div className="mb-6">
+                  {produitSelectionne.prix_promo &&
+                  new Date(produitSelectionne.promo_debut) <= new Date() &&
+                  new Date(produitSelectionne.promo_fin) >= new Date() ? (
+                    <div className="flex items-center gap-3">
+                      <p className="text-xl font-bold text-gray-400 line-through">
                         {formatAr(produitSelectionne.prix_vente)} Ar
                       </p>
-                    )}
-                  </div>
-                  <div className="mb-8">
-                    <h3 className="text-sm font-black uppercase text-gray-800 mb-2 border-b border-gray-100 pb-2">
-                      Description
-                    </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">
-                      {produitSelectionne.description ||
-                        "Aucune description détaillée pour ce produit."}
+                      <p className="text-3xl font-black text-red-600">
+                        {formatAr(produitSelectionne.prix_promo)} Ar
+                      </p>
+                      <span className="bg-red-600 text-white text-[10px] px-2 py-1 rounded-lg font-black uppercase animate-pulse">
+                        Promo !
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-3xl font-black text-[#800020]">
+                      {formatAr(produitSelectionne.prix_vente)} Ar
                     </p>
-                  </div>
+                  )}
                 </div>
-                <div className="mt-auto pt-6 border-t border-gray-100">
+
+                {/* 2. LE BOUTON D'ACTION (Remonté en haut pour l'efficacité) */}
+                <div className="mb-8 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                   {produitSelectionne.sur_commande && (
                     <div className="bg-orange-50 border border-orange-200 p-3 rounded-xl mb-4">
                       <p className="text-xs font-bold text-orange-800">
-                        ⏱️{" "}
-                        {produitSelectionne.delai_commande ||
-                          "Disponible sous 15 jours"}
+                        ⏱️ {produitSelectionne.delai_commande || "Disponible sous 15 jours"}
                       </p>
                       <p className="text-[10px] text-orange-600 mt-1">
-                        Un acompte de <strong>60%</strong> vous sera demandé
-                        après validation.
+                        Un acompte de <strong>60%</strong> vous sera demandé après validation.
                       </p>
                     </div>
                   )}
@@ -2220,6 +2208,17 @@ if (isCheckingMaintenance) {
                         : "🛒 Ajouter au panier"}
                     </button>
                   )}
+                </div>
+
+                {/* 3. LA DESCRIPTION (Déplacée en dessous) */}
+                <div className="mt-auto">
+                  <h3 className="text-sm font-black uppercase text-gray-800 mb-2 border-b border-gray-100 pb-2">
+                    Description
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">
+                    {produitSelectionne.description ||
+                      "Aucune description détaillée pour ce produit."}
+                  </p>
                 </div>
               </div>
             </div>

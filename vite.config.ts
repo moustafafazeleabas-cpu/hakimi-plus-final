@@ -19,13 +19,13 @@ export default defineConfig({
         display: "standalone",
         icons: [
           {
-            src: "/logo-512.png", // Le navigateur va réduire l'image tout seul
+            src: "/favicon.png", // Le navigateur va réduire l'image tout seul
             sizes: "192x192",
             type: "image/png",
             purpose: "any maskable", // Ajoute une compatibilité maximale pour Android
           },
           {
-            src: "/logo-512.png", // Ta vraie image HD
+            src: "/favicon.png", // Ta vraie image HD
             sizes: "512x512",
             type: "image/png",
             purpose: "any maskable",

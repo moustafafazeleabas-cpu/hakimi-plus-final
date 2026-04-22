@@ -1065,19 +1065,18 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
   };
 if (isCheckingMaintenance) {
     return (
-      <div className="fixed inset-0 bg-[#f8fafc] z-[9999] flex flex-col items-center justify-center">
-        {/* Ton logo beaucoup plus grand avec une belle ombre */}
-        <img 
-          src={LOGO_URL} 
-          alt="Hakimi Plus" 
-          className="h-32 md:h-48 object-contain mb-10 drop-shadow-2xl animate-pulse" 
-        />
-        
-        {/* Barre de progression premium façon Apple */}
-        <div className="w-48 h-1.5 bg-gray-200 rounded-full overflow-hidden shadow-inner">
-          <div className="h-full bg-[#800020] rounded-full animate-pulse" style={{ width: "65%" }}></div>
+      <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center overflow-hidden">
+        <div className="flex flex-col items-center animate-pulse">
+          <img 
+            src={LOGO_URL} 
+            alt="Hakimi Plus" 
+            className="h-16 md:h-24 object-contain mb-8 drop-shadow-xl" 
+          />
+          <svg className="w-6 h-6 text-gray-900 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle className="opacity-10" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"></circle>
+            <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
         </div>
-        <p className="text-[9px] font-black text-gray-400 mt-4 uppercase tracking-[0.3em]">Chargement</p>
       </div>
     );
   }
@@ -1116,16 +1115,13 @@ if (isCheckingMaintenance) {
   return (
     <div className="min-h-screen font-sans flex flex-col bg-gray-50 text-gray-800 transition-colors duration-500">
       {/* HEADER PREMIUM */}
-      <header className="sticky top-0 z-50 shadow-sm border-b transition-colors duration-500 bg-white border-gray-200">
-        {/* 📢 BANDEAU D'URGENCE ANIMÉ */}
-        <div className="text-center py-2 text-[10px] md:text-xs font-black uppercase tracking-[0.15em] bg-[#800020] text-white relative overflow-hidden h-8 flex items-center justify-center shadow-inner">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-500">
+        <div className="text-center py-1.5 text-[9px] font-black uppercase tracking-[0.2em] bg-gray-900 text-white relative overflow-hidden h-7 flex items-center justify-center">
           {messagesBanniere.map((msg, idx) => (
             <span
               key={idx}
               className={`absolute w-full px-2 transition-all duration-700 ease-in-out ${
-                indexBanniere === idx
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-full"
+                indexBanniere === idx ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"
               }`}
             >
               {msg}
@@ -1133,156 +1129,71 @@ if (isCheckingMaintenance) {
           ))}
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="md:hidden p-1 text-gray-800"
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
+        <div className="max-w-7xl mx-auto px-4 h-16 md:h-20 flex justify-between items-center gap-4">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-1 text-gray-800 hover:text-gray-500 transition">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
-            <div className="flex items-center gap-2 cursor-pointer bg-white rounded-lg px-1 py-1">
-              <img
-                onClick={() => setView("accueil")}
-                src={LOGO_URL}
-                alt="Logo"
-                className="h-10 md:h-16 lg:h-20 object-contain"
-              />
-              {/* LE BOUTON D'INSTALLATION INTELLIGENT */}
+            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setView("accueil")}>
+              <img src={LOGO_URL} alt="Logo" className="h-8 md:h-10 object-contain group-hover:scale-105 transition-transform" />
               {isInstallable && !isInstalled && (
-                <button
-                  onClick={handleInstallClick}
-                  className="md:hidden bg-[#800020] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md animate-pulse border border-red-900"
-                >
-                  Installer l'App
+                <button onClick={handleInstallClick} className="md:hidden bg-gray-900 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm">
+                  Installer
                 </button>
               )}
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center justify-center gap-8 flex-1">
+          <nav className="hidden md:flex items-center justify-center gap-8 lg:gap-10 flex-1">
             {[
-              "accueil",
-              "catalogue",
-              "livraison",
-              "conditions",
-              "informatique",
+              { id: "accueil", label: "Accueil" },
+              { id: "catalogue", label: "Boutique" },
+              { id: "livraison", label: "Livraison" },
+              { id: "conditions", label: "Conditions" },
+              { id: "informatique", label: "Informatique" },
             ].map((m) => (
               <button
-                key={m}
-                onClick={() => setView(m)}
-                className={`text-sm font-black uppercase transition-colors ${
-                  view.startsWith(m)
-                    ? "text-[#800020] border-b-2 border-[#800020] pb-1"
-                    : "text-gray-800 hover:text-[#800020]"
+                key={m.id}
+                onClick={() => setView(m.id)}
+                className={`relative text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-300 py-2 ${
+                  view.startsWith(m.id) ? "text-gray-900" : "text-gray-400 hover:text-gray-900"
                 }`}
               >
-                {m === "catalogue" ? "Boutique" : m}
+                {m.label}
+                <span className={`absolute bottom-0 left-0 w-full h-[2px] bg-gray-900 transition-transform duration-300 origin-left ${view.startsWith(m.id) ? "scale-x-100" : "scale-x-0"}`}></span>
               </button>
             ))}
           </nav>
 
           <div className="flex items-center gap-2 md:gap-4">
-            <div
-              ref={searchContainerRefDesktop}
-              className="hidden lg:flex items-center rounded-full px-4 py-2 w-64 shadow-inner transition-colors duration-500 border bg-gray-100 border-transparent"
-            >
+            <div ref={searchContainerRefDesktop} className="hidden lg:flex items-center rounded-full px-4 py-2 w-64 bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-gray-200 transition-all duration-300 border border-transparent">
               <input
                 type="text"
                 placeholder="Rechercher un produit..."
                 className="bg-transparent border-none outline-none text-xs font-bold w-full text-gray-800 placeholder-gray-400"
                 value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  if (e.target.value && view !== "catalogue")
-                    setView("catalogue");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.target.blur();
-                    if (view !== "catalogue") setView("catalogue");
-                  }
-                }}
+                onChange={(e) => { setSearchQuery(e.target.value); if (e.target.value && view !== "catalogue") setView("catalogue"); }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.target.blur(); if (view !== "catalogue") setView("catalogue"); } }}
               />
-              <button
-                onClick={() => {
-                  if (searchQuery && view !== "catalogue") setView("catalogue");
-                }}
-                className="ml-2 transition-transform hover:scale-110 text-gray-500 hover:text-[#800020]"
-                title="Lancer la recherche"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  ></path>
-                </svg>
+              <button onClick={() => { if (searchQuery && view !== "catalogue") setView("catalogue"); }} className="ml-2 text-gray-400 hover:text-gray-900 transition-colors">
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
               </button>
             </div>
 
-            <button
-              onClick={() => setView("recherche_suivi")}
-              className="p-2 transition-colors text-gray-800 hover:text-[#800020]"
-              title="Suivre ma commande"
-            >
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
+            <button onClick={() => setView("recherche_suivi")} className="p-2 text-gray-800 hover:text-gray-500 transition-colors" title="Suivre ma commande">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
             </button>
 
-            <div 
-              className="relative flex items-center h-full"
-              onMouseEnter={() => setShowMiniCart(true)}
-              onMouseLeave={() => setShowMiniCart(false)}
-            >
-              <button
-                onClick={() => { setView("panier"); setShowMiniCart(false); }}
-                className="relative p-2 transition-colors text-gray-800 hover:text-[#800020]"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="9" cy="21" r="1"></circle>
-                  <circle cx="20" cy="21" r="1"></circle>
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                </svg>
+            <div className="relative flex items-center h-full" onMouseEnter={() => setShowMiniCart(true)} onMouseLeave={() => setShowMiniCart(false)}>
+              <button onClick={() => { setView("panier"); setShowMiniCart(false); }} className="relative p-2 text-gray-800 hover:text-gray-500 transition-colors">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                 {panier.length > 0 && (
-                  <span className="absolute top-0 right-0 text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full bg-[#800020] animate-bounce">
+                  <span className="absolute top-0 right-0 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full bg-red-600 border-2 border-white">
                     {panier.length}
                   </span>
                 )}
               </button>
-
-              {/* MINI PANIER FLOTTANT (STYLE AMAZON) */}
               {showMiniCart && (
-                /* LE PONT INVISIBLE EST ICI : top-full et pt-4 (padding-top) */
                 <div className="absolute right-0 top-full pt-4 w-80 z-[300]">
                   <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                     {panier.length === 0 ? (
@@ -1307,17 +1218,12 @@ if (isCheckingMaintenance) {
                                 <p className="text-[10px] font-bold text-gray-400 mt-0.5">Qté: {item.qte} × {formatAr(item.prix_vente)} Ar</p>
                               </div>
                               <div className="text-right shrink-0 flex flex-col items-end">
-                              <p className="text-xs font-black text-[#800020]">{formatAr(item.prix_vente * item.qte)} Ar</p>
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); removeFromCart(item.id); }}
-                                className="text-[9px] text-gray-400 hover:text-red-600 font-bold uppercase mt-1 flex items-center gap-1 transition-colors"
-                              >
-                                <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                                Retirer
-                              </button>
-                            </div>
+                                <p className="text-xs font-black text-[#800020]">{formatAr(item.prix_vente * item.qte)} Ar</p>
+                                <button onClick={(e) => { e.stopPropagation(); removeFromCart(item.id); }} className="text-[9px] text-gray-400 hover:text-red-600 font-bold uppercase mt-1 flex items-center gap-1 transition-colors">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                  Retirer
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -1328,10 +1234,7 @@ if (isCheckingMaintenance) {
                               {formatAr(panier.reduce((acc, item) => acc + Number(item.prix_vente) * item.qte, 0))} Ar
                             </span>
                           </div>
-                          <button 
-                            onClick={() => { setView("panier"); setShowMiniCart(false); }}
-                            className="w-full bg-[#800020] hover:bg-black text-white py-3.5 rounded-xl font-black uppercase text-[11px] tracking-widest transition-colors shadow-md flex justify-center items-center gap-2"
-                          >
+                          <button onClick={() => { setView("panier"); setShowMiniCart(false); }} className="w-full bg-[#800020] hover:bg-black text-white py-3.5 rounded-xl font-black uppercase text-[11px] tracking-widest transition-colors shadow-md flex justify-center items-center gap-2">
                             Aller au panier ➔
                           </button>
                         </div>
@@ -1341,53 +1244,21 @@ if (isCheckingMaintenance) {
                 </div>
               )}
             </div>
-             
           </div>
         </div>
 
-        {/* RECHERCHE MOBILE */}
-        <div
-          className="lg:hidden px-4 pb-3 max-w-7xl mx-auto w-full animate-in fade-in"
-          ref={searchContainerRefMobile}
-        >
-          <div className="flex items-center rounded-2xl px-4 py-2.5 shadow-inner transition-colors duration-500 border bg-gray-100 border-transparent">
+        <div className="lg:hidden px-4 pb-3 max-w-7xl mx-auto w-full animate-in fade-in" ref={searchContainerRefMobile}>
+          <div className="flex items-center rounded-2xl px-4 py-2.5 shadow-sm transition-colors duration-500 bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-gray-200 border border-gray-100">
             <input
               type="text"
               placeholder="Rechercher un produit..."
               className="bg-transparent border-none outline-none text-sm font-bold w-full text-gray-800 placeholder-gray-400"
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                if (e.target.value && view !== "catalogue")
-                  setView("catalogue");
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.target.blur();
-                  if (view !== "catalogue") setView("catalogue");
-                }
-              }}
+              onChange={(e) => { setSearchQuery(e.target.value); if (e.target.value && view !== "catalogue") setView("catalogue"); }}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.target.blur(); if (view !== "catalogue") setView("catalogue"); } }}
             />
-            <button
-              onClick={() => {
-                if (searchQuery && view !== "catalogue") setView("catalogue");
-              }}
-              className="ml-2 transition-transform active:scale-95 text-gray-500"
-            >
-              <svg
-                width="18"
-                height="18"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                ></path>
-              </svg>
+            <button onClick={() => { if (searchQuery && view !== "catalogue") setView("catalogue"); }} className="ml-2 text-gray-400">
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </button>
           </div>
         </div>
@@ -1473,69 +1344,48 @@ if (isCheckingMaintenance) {
                 </p>
               </div>
             ) : (
-              <>
-                <div className="w-full bg-gray-100 relative group aspect-[3/1] overflow-hidden flex items-center justify-center shadow-inner">
-                  <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
-                  {carouselDynamicImages.map((imgUrl, idx) => (
-                    <img
-                      key={idx}
-                      src={imgUrl}
-                      alt={`Promotion Hakimi Plus ${idx + 1}`}
-                      loading={idx === 0 ? "eager" : "lazy"}
-                      className={`absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-700 ease-in-out ${
-                        currentSlide === idx
-                          ? "opacity-100"
-                          : "opacity-0 pointer-events-none"
-                      }`}
-                    />
-                  ))}
-                  <button
-                    onClick={prevSlide}
-                    onClick={prevSlide}
-                    className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-[#800020] rounded-full flex items-center justify-center shadow-lg transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
-                  >
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M15 18l-6-6 6-6" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-[#800020] rounded-full flex items-center justify-center shadow-lg transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
-                  >
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M9 18l6-6-6-6" />
-                    </svg>
-                  </button>
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-                    {carouselDynamicImages.map((_, idx) => (
-                      <button
+             <>
+                <div className="max-w-7xl mx-auto px-4 mt-4 md:mt-8 mb-16">
+                  <div className="w-full bg-gray-50 relative group h-[200px] sm:h-[350px] lg:h-[450px] rounded-[2rem] overflow-hidden flex items-center justify-center shadow-lg border border-gray-100">
+                    
+                    {carouselDynamicImages.map((imgUrl, idx) => (
+                      <img
                         key={idx}
-                        onClick={() => setCurrentSlide(idx)}
-                        className={`h-1.5 transition-all rounded-full ${
+                        src={imgUrl}
+                        alt={`Promotion Hakimi Plus ${idx + 1}`}
+                        loading={idx === 0 ? "eager" : "lazy"}
+                        className={`absolute inset-0 w-full h-full object-cover z-10 transition-all duration-1000 ease-out ${
                           currentSlide === idx
-                            ? "w-8 bg-[#800020]"
-                            : "w-2 bg-white/50"
+                            ? "opacity-100 scale-100"
+                            : "opacity-0 scale-105 pointer-events-none"
                         }`}
                       />
                     ))}
+
+                    <button
+                      onClick={prevSlide}
+                      className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-gray-900 rounded-full flex items-center justify-center shadow-lg transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+                    </button>
+                    <button
+                      onClick={nextSlide}
+                      className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-gray-900 rounded-full flex items-center justify-center shadow-lg transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+                    </button>
+
+                    <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20 bg-black/20 backdrop-blur-sm px-3 py-2 rounded-full">
+                      {carouselDynamicImages.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setCurrentSlide(idx)}
+                          className={`h-1.5 transition-all rounded-full ${
+                            currentSlide === idx ? "w-6 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
+                          }`}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
 

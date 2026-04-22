@@ -1346,51 +1346,72 @@ if (isCheckingMaintenance) {
               </div>
             ) : (
              <>
-                {/* CARROUSEL PROPORTIONNEL (Zéro bande blanche, façon KIBO) */}
-                <div className="w-full relative group aspect-[5/3] md:aspect-[21/9] lg:aspect-[4/1] bg-gray-100 overflow-hidden flex items-center justify-center border-b border-gray-200">
+                <div className="w-full bg-gray-100 relative group aspect-[3/1] overflow-hidden flex items-center justify-center shadow-inner">
+                  <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
                   {carouselDynamicImages.map((imgUrl, idx) => (
                     <img
                       key={idx}
                       src={imgUrl}
                       alt={`Promotion Hakimi Plus ${idx + 1}`}
                       loading={idx === 0 ? "eager" : "lazy"}
-                      /* Le retour du object-cover, mais dans un conteneur intelligent ! */
-                      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
-                        currentSlide === idx ? "opacity-100" : "opacity-0 pointer-events-none"
+                      className={`absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-700 ease-in-out ${
+                        currentSlide === idx
+                          ? "opacity-100"
+                          : "opacity-0 pointer-events-none"
                       }`}
                     />
                   ))}
-
-                  {/* Flèches de navigation */}
                   <button
                     onClick={prevSlide}
-                    className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/90 text-[#800020] rounded-full flex items-center justify-center shadow-md transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
+                    onClick={prevSlide}
+                    className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-[#800020] rounded-full flex items-center justify-center shadow-lg transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
                   </button>
                   <button
                     onClick={nextSlide}
-                    className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/90 text-[#800020] rounded-full flex items-center justify-center shadow-md transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
+                    className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-[#800020] rounded-full flex items-center justify-center shadow-lg transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
                   </button>
-
-                  {/* Points de progression */}
-                  <div className="absolute bottom-3 md:bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-20 bg-black/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
                     {carouselDynamicImages.map((_, idx) => (
                       <button
                         key={idx}
                         onClick={() => setCurrentSlide(idx)}
                         className={`h-1.5 transition-all rounded-full ${
-                          currentSlide === idx ? "w-6 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
+                          currentSlide === idx
+                            ? "w-8 bg-[#800020]"
+                            : "w-2 bg-white/50"
                         }`}
                       />
                     ))}
                   </div>
                 </div>
 
-                {/* Le reste du site redevient centré avec des marges */}
-                <div className="max-w-7xl mx-auto px-4 mt-8 md:mt-12">
+                <div className="max-w-7xl mx-auto px-4 mt-12">
                   {produitsEnValeur.length > 0 && (
                     <div className="mb-16">
                       <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">

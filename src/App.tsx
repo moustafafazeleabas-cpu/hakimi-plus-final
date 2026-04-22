@@ -268,18 +268,30 @@ const handleInstallClick = async () => {
     }
   }, [view]);
   useEffect(() => {
-    if (window.fbq && typeof window.fbq === "function")
-      window.fbq("track", "PageView");
+    // 1. Gestion du titre de l'onglet
+    let currentTitle = "Hakimi Plus";
     if (view.startsWith("produit/") && produitSelectionne) {
-      document.title = `${produitSelectionne.nom} | Hakimi Plus`;
+      currentTitle = `${produitSelectionne.nom} | Hakimi Plus`;
     } else if (view.startsWith("catalogue")) {
-      document.title = "Notre Catalogue | Hakimi Plus";
+      currentTitle = "Notre Catalogue | Hakimi Plus";
     } else if (view === "panier") {
-      document.title = `🛒 Mon Panier (${panier.length}) | Hakimi Plus`;
+      currentTitle = `🛒 Mon Panier (${panier.length}) | Hakimi Plus`;
     } else if (view === "accueil") {
-      document.title = "Hakimi Plus - Boutique en ligne à Tananarive";
-    } else {
-      document.title = "Hakimi Plus";
+      currentTitle = "Hakimi Plus - Boutique en ligne à Tananarive";
+    }
+    document.title = currentTitle;
+
+    // 2. Envoi du signal au Pixel Facebook
+    if (window.fbq && typeof window.fbq === "function") {
+      window.fbq("track", "PageView");
+    }
+
+    // 3. Envoi du signal précis à Google Analytics (GA4)
+    if (window.gtag && typeof window.gtag === "function") {
+      window.gtag("event", "page_view", {
+        page_path: "/" + view,
+        page_title: currentTitle,
+      });
     }
   }, [view, produitSelectionne, panier.length]);
 
@@ -685,6 +697,15 @@ if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && tot
     setPanier([]);
     // On vide juste le message d'expédition, on garde tout le reste intact !
     setFormClient({ ...formClient, message_expedition: "" });
+    // Signal d'achat validé pour Google Analytics
+    if (window.gtag && typeof window.gtag === "function") {
+      window.gtag("event", "purchase", {
+        transaction_id: numeroUnique,
+        value: totalNetAPayer,
+        currency: "MGA",
+        payment_type: formClient.methode_paiement
+      });
+    }
     setView("succes");
     setIsSubmitting(false);
   };

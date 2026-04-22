@@ -695,27 +695,31 @@ if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && tot
     }));
 
     setPanier([]);
+  
     // On vide juste le message d'expédition, on garde tout le reste intact !
-    setFormClient({ ...formClient, message_expedition: "" });
-    // Signal d'achat validé pour Google Analytics
-    if (window.gtag && typeof window.gtag === "function") {
-      window.gtag("event", "purchase", {
-        transaction_id: numeroUnique,
-        value: totalNetAPayer,
-        currency: "MGA",
-        payment_type: formClient.methode_paiement
-      });
-    }
-    // PIXEL FACEBOOK
-    if (window.fbq && typeof window.fbq === "function") {
-      window.fbq("track", "Purchase", {
-        value: totalNetAPayer,
-        currency: "MGA"
-      });
-    }
-    setView("succes");
-    setIsSubmitting(false);
-  };
+    setFormClient({ ...formClient, message_expedition: "" });
+    
+    // Signal d'achat validé pour Google Analytics
+    if (window.gtag && typeof window.gtag === "function") {
+      window.gtag("event", "purchase", {
+        transaction_id: numeroUnique,
+        value: totalNetAPayer,
+        currency: "MGA",
+        payment_type: formClient.methode_paiement
+      });
+    }
+
+    // 🎯 NOUVEAU : Signal d'achat validé pour le Pixel Facebook (LE RADAR)
+    if (window.fbq && typeof window.fbq === "function") {
+      window.fbq("track", "Purchase", {
+        value: totalNetAPayer,
+        currency: "MGA"
+      });
+    }
+
+    setView("succes");
+    setIsSubmitting(false);
+  };
 
   let produitsFiltres = produits.filter((p) => {
     const sq = searchQuery.toLowerCase().trim();

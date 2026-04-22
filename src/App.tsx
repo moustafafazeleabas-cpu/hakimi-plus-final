@@ -1346,17 +1346,16 @@ if (isCheckingMaintenance) {
               </div>
             ) : (
              <>
-             
-                {/* CARROUSEL 100% VISIBLE (Aucune coupure) */}
-                <div className="w-full relative group h-[160px] sm:h-[300px] lg:h-[400px] bg-white overflow-hidden flex items-center justify-center border-b border-gray-100">
+                {/* CARROUSEL PROPORTIONNEL (Zéro bande blanche, façon KIBO) */}
+                <div className="w-full relative group aspect-[5/3] md:aspect-[21/9] lg:aspect-[4/1] bg-gray-100 overflow-hidden flex items-center justify-center border-b border-gray-200">
                   {carouselDynamicImages.map((imgUrl, idx) => (
                     <img
                       key={idx}
                       src={imgUrl}
                       alt={`Promotion Hakimi Plus ${idx + 1}`}
                       loading={idx === 0 ? "eager" : "lazy"}
-                      /* 🪄 LE SECRET EST LÀ : object-contain au lieu de object-cover */
-                      className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ease-in-out ${
+                      /* Le retour du object-cover, mais dans un conteneur intelligent ! */
+                      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
                         currentSlide === idx ? "opacity-100" : "opacity-0 pointer-events-none"
                       }`}
                     />
@@ -1365,25 +1364,25 @@ if (isCheckingMaintenance) {
                   {/* Flèches de navigation */}
                   <button
                     onClick={prevSlide}
-                    className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-gray-900/10 hover:bg-gray-900/30 text-gray-900 rounded-full flex items-center justify-center transition-all z-20 opacity-90 md:opacity-0 md:group-hover:opacity-100"
+                    className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/90 text-[#800020] rounded-full flex items-center justify-center shadow-md transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
                   </button>
                   <button
                     onClick={nextSlide}
-                    className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-gray-900/10 hover:bg-gray-900/30 text-gray-900 rounded-full flex items-center justify-center transition-all z-20 opacity-90 md:opacity-0 md:group-hover:opacity-100"
+                    className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/90 text-[#800020] rounded-full flex items-center justify-center shadow-md transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
                   </button>
 
-                  {/* Points de progression (Plus discrets pour fond blanc) */}
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 z-20 px-3 py-1.5">
+                  {/* Points de progression */}
+                  <div className="absolute bottom-3 md:bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-20 bg-black/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
                     {carouselDynamicImages.map((_, idx) => (
                       <button
                         key={idx}
                         onClick={() => setCurrentSlide(idx)}
-                        className={`h-1.5 transition-all rounded-full shadow-sm ${
-                          currentSlide === idx ? "w-6 bg-[#800020]" : "w-1.5 bg-gray-300 hover:bg-gray-400"
+                        className={`h-1.5 transition-all rounded-full ${
+                          currentSlide === idx ? "w-6 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
                         }`}
                       />
                     ))}

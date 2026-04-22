@@ -706,6 +706,13 @@ if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && tot
         payment_type: formClient.methode_paiement
       });
     }
+    // PIXEL FACEBOOK
+    if (window.fbq && typeof window.fbq === "function") {
+      window.fbq("track", "Purchase", {
+        value: totalNetAPayer,
+        currency: "MGA"
+      });
+    }
     setView("succes");
     setIsSubmitting(false);
   };

@@ -1042,17 +1042,21 @@ if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && tot
 alert("📥 Préparation de votre document... Le téléchargement va démarrer dans un instant. Vérifiez vos notifications.");
     html2pdf().set(options).from(element).save();
   };
-  if (isCheckingMaintenance) {
+if (isCheckingMaintenance) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center">
-        <div className="relative flex justify-center items-center mb-8">
-          {/* Les orbites qui tournent */}
-          <div className="absolute w-32 h-32 border-2 border-gray-200 border-t-[#800020] rounded-full animate-spin"></div>
-          <div className="absolute w-24 h-24 border-2 border-gray-200 border-b-[#800020] rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-          {/* Le logo central qui respire */}
-          <img src={LOGO_URL} alt="Hakimi Plus" className="w-16 h-16 object-contain animate-pulse drop-shadow-2xl" />
+      <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center overflow-hidden">
+        <div className="flex flex-col items-center animate-pulse">
+          {/* Typographie Premium (S'affiche instantanément, 0 temps de chargement) */}
+          <h1 className="text-2xl md:text-3xl font-black tracking-[0.3em] text-gray-900 uppercase mb-8 flex items-center">
+            HAKIMI<span className="text-[#800020]">PLUS</span>
+          </h1>
+          
+          {/* Spinner ultra-minimaliste et fin */}
+          <svg className="w-6 h-6 text-[#800020] animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"></circle>
+            <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
         </div>
-        <p className="text-[#800020] font-black text-[10px] uppercase tracking-[0.3em] animate-pulse">Initialisation...</p>
       </div>
     );
   }

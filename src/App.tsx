@@ -209,13 +209,13 @@ const handleInstallClick = async () => {
     }, 3000); // Change le texte toutes les 3 secondes
     return () => clearInterval(timer);
   }, [messagesBanniere]);
-  const [articleActuel, setArticleActuel] = useState(() => {
-    const saved = sessionStorage.getItem("hakimi_article");
+const [articleActuel, setArticleActuel] = useState(() => {
+    const saved = localStorage.getItem("hakimi_article");
     return saved ? JSON.parse(saved) : null;
   });
   useEffect(() => {
     if (articleActuel)
-      sessionStorage.setItem("hakimi_article", JSON.stringify(articleActuel));
+      localStorage.setItem("hakimi_article", JSON.stringify(articleActuel));
   }, [articleActuel]);
 
   const [produitSelectionne, setProduitSelectionne] = useState(() => {
@@ -1662,19 +1662,31 @@ if (isCheckingMaintenance) {
                       </div>
                      
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {rubriques.map((rubrique, idx) => (
-                          <div
+                       {rubriques.map((rubrique, idx) => (
+                          <a
                             key={idx}
-                            className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-lg transition-all"
+                            href="#/article"
+                            onMouseDown={() => {
+                              // On sauvegarde l'article AVANT que le menu clic droit n'apparaisse
+                              localStorage.setItem("hakimi_article", JSON.stringify(rubrique));
+                            }}
+                            onClick={(e) => {
+                              if (e.ctrlKey || e.metaKey || e.button === 1) return;
+                              e.preventDefault();
+                              setArticleActuel(rubrique);
+                              setView("article");
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-lg transition-all cursor-pointer block group"
                           >
                             {rubrique.image_url && (
                               <img
                                 src={rubrique.image_url}
                                 alt={rubrique.titre}
-                                className="w-full h-48 object-cover"
+                                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                               />
                             )}
-                            <div className="p-6 flex-grow flex flex-col justify-between">
+                            <div className="p-6 flex-grow flex flex-col justify-between bg-white relative z-10">
                               <div>
                                 <span
                                   className={`text-[10px] font-black uppercase px-2 py-1 rounded-md mb-3 inline-block ${
@@ -1685,24 +1697,18 @@ if (isCheckingMaintenance) {
                                 >
                                   {rubrique.type}
                                 </span>
-                                <h3 className="font-black text-gray-800 text-xl mb-2">
+                                <h3 className="font-black text-gray-800 text-xl mb-2 group-hover:text-[#800020] transition-colors">
                                   {rubrique.titre}
                                 </h3>
                                 <p className="text-gray-500 text-sm mb-4 line-clamp-3">
                                   {rubrique.description}
                                 </p>
                               </div>
-                              <button
-                                onClick={() => {
-                                  setArticleActuel(rubrique);
-                                  setView("article");
-                                }}
-                                className="text-[#800020] font-black uppercase text-xs text-left hover:underline"
-                              >
+                              <span className="text-[#800020] font-black uppercase text-xs text-left group-hover:underline">
                                 Lire la suite ➔
-                              </button>
+                              </span>
                             </div>
-                          </div>
+                          </a>
                         ))}
                       </div>
                     </div>

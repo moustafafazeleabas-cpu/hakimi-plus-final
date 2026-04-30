@@ -1433,12 +1433,15 @@ if (isCheckingMaintenance) {
                             key={p.id}
                             className="bg-white p-3 md:p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all border border-gray-100 relative group flex flex-col justify-between"
                           >
-                            <div
-                              onClick={() => {
+                           <a
+                              href={`#/produit/${p.id}`}
+                              onClick={(e) => {
+                                if (e.ctrlKey || e.metaKey || e.button === 1) return; // Laisse le navigateur gérer le "Nouvel onglet"
+                                e.preventDefault(); // Garde la fluidité React pour un clic normal
                                 setProduitSelectionne(p);
                                 setView("produit/" + p.id);
                               }}
-                              className="cursor-pointer"
+                              className="cursor-pointer block"
                             >
                               <div className="relative overflow-hidden aspect-square flex items-center justify-center bg-gray-50 rounded-xl mb-3 p-1">
                                 {p.image_url ? (
@@ -1477,7 +1480,7 @@ if (isCheckingMaintenance) {
                                   {p.delai_commande || "Dispo sous 15 jrs"}
                                 </p>
                               )}
-                            </div>
+                            </a>
                             <div className="mt-2 border-t border-gray-100 pt-3">
                               <div className="mb-3">
                                 {p.prix_promo &&
@@ -1558,12 +1561,15 @@ if (isCheckingMaintenance) {
                             <div className="absolute top-2 left-2 z-10">
                               <ChronoPromo dateFin={p.promo_fin} />
                             </div>
-                            <div
-                              onClick={() => {
+                           <a
+                              href={`#/produit/${p.id}`}
+                              onClick={(e) => {
+                                if (e.ctrlKey || e.metaKey || e.button === 1) return;
+                                e.preventDefault();
                                 setProduitSelectionne(p);
                                 setView("produit/" + p.id);
                               }}
-                              className="cursor-pointer mt-6"
+                              className="cursor-pointer mt-6 block"
                             >
                               <div className="relative overflow-hidden aspect-square flex items-center justify-center bg-gray-50 rounded-xl mb-3 p-1">
                                 {p.image_url ? (
@@ -1596,7 +1602,7 @@ if (isCheckingMaintenance) {
                               >
                                 {p.nom}
                               </h3>
-                            </div>
+                            </a>
                             <div className="mt-2 border-t border-gray-100 pt-3">
                               <div className="mb-3">
                                 <div className="flex items-center gap-2">
@@ -1852,12 +1858,15 @@ if (isCheckingMaintenance) {
                         : "hover:border-gray-300 shadow-sm"
                     }`}
                   >
-                    <div
-                      onClick={() => {
+                   <a
+                      href={`#/produit/${p.id}`}
+                      onClick={(e) => {
+                        if (e.ctrlKey || e.metaKey || e.button === 1) return;
+                        e.preventDefault();
                         setProduitSelectionne(p);
                         setView("produit/" + p.id);
                       }}
-                      className="cursor-pointer"
+                      className="cursor-pointer block"
                     >
                       <div className="relative overflow-hidden aspect-square flex items-center justify-center bg-white rounded-xl mb-3">
                         {p.image_url ? (
@@ -1898,7 +1907,7 @@ if (isCheckingMaintenance) {
                           Dispo : {p.delai_commande || "15 jrs"}
                         </p>
                       )}
-                    </div>
+                    </a>
                     <div className="mt-1 pt-2">
                       <div className="mb-2">
                         {p.prix_promo &&
@@ -2134,13 +2143,15 @@ if (isCheckingMaintenance) {
                   {produitsAleatoires.map((p) => {
                     const enRupture = Number(p.stock_actuel) <= 0;
                     return (
-                      <div
+                    <a
                         key={p.id}
-                        className="bg-white p-3 rounded-2xl border border-gray-100 flex flex-col justify-between hover:shadow-lg hover:border-gray-300 transition-all cursor-pointer group"
-                        onClick={() => {
+                        href={`#/produit/${p.id}`}
+                        className="bg-white p-3 rounded-2xl border border-gray-100 flex flex-col justify-between hover:shadow-lg hover:border-gray-300 transition-all cursor-pointer group block"
+                        onClick={(e) => {
+                          if (e.ctrlKey || e.metaKey || e.button === 1) return;
+                          e.preventDefault();
                           setProduitSelectionne(p);
                           setView("produit/" + p.id);
-                          // On remonte tout en haut doucement quand il clique
                           window.scrollTo({ top: 0, behavior: "smooth" }); 
                         }}
                       >
@@ -2181,7 +2192,7 @@ if (isCheckingMaintenance) {
                             </p>
                           )}
                         </div>
-                      </div>
+                      </a>
                     );
                   })}
                 </div>

@@ -433,20 +433,23 @@ useEffect(() => {
             setMessagesBanniere(data.bandeau_promo_json);
           }
         }
-     } catch (err) {
-          console.error(err);
-        } finally {
-          setIsCheckingMaintenance(false);
-          // 🎭 La magie opère ici : On attend 600ms pour faire monter le suspense
+  } catch (err) {
+        console.error(err);
+      } finally {
+        // 1. On attend une fraction de seconde pour que l'image soit bien là
+        setTimeout(() => {
+          setIsCheckingMaintenance(false); // Fait disparaître le vieux spinner
+          // 2. On attend encore un peu, puis on OUVRE LES RIDEAUX
           setTimeout(() => {
-            setCurtainOpen(true); // Ouvre les rideaux
-            // On supprime le rideau du code après l'animation (1.2 sec)
-            setTimeout(() => setRemoveCurtain(true), 1200); 
+            setCurtainOpen(true);
+            // 3. On détruit les rideaux après l'animation pour pouvoir cliquer sur le site
+            setTimeout(() => setRemoveCurtain(true), 1200);
           }, 600);
-        }
-      };
-      fetchParams();
-    }, []);
+        }, 100);
+      }
+    };
+    fetchParams();
+  }, []);
 
   const nextSlide = () =>
     setCurrentSlide((prev) => (prev + 1) % carouselDynamicImages.length);

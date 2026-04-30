@@ -3055,59 +3055,49 @@ if (isCheckingMaintenance) {
         )}
       </main>
 
-      {/* --- 🚀 NOTIFICATION MODERNE (TOAST) --- */}
+    {/* --- 🚀 NOTIFICATION MODERNE (TOAST) --- */}
       {notificationPanier && (
         <div className="fixed top-20 md:top-24 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-top-8 fade-in duration-300">
           <div className="bg-white/90 backdrop-blur-md pl-1.5 pr-4 py-1.5 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 flex items-center gap-3 w-max max-w-[90vw]">
             <div className="bg-[#800020] text-white w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm">
-              <svg
-                width="14"
-                height="14"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                ></path>
-              </svg>
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <p className="text-xs font-medium text-gray-600 truncate max-w-[140px] md:max-w-[250px]">
-              <strong className="text-gray-900 font-black">
-                {notificationPanier}
-              </strong>{" "}
-              ajouté
-            </p>
+            <p className="text-xs font-medium text-gray-600 truncate max-w-[140px] md:max-w-[250px]"><strong className="text-gray-900 font-black">{notificationPanier}</strong> ajouté</p>
             <div className="w-px h-4 bg-gray-200 mx-1 shrink-0"></div>
-            <button
-              onClick={() => {
-                setNotificationPanier(null);
-                setView("panier");
-              }}
-              className="text-[10px] font-black text-[#800020] hover:text-black uppercase tracking-widest transition-colors shrink-0 flex items-center gap-1"
-            >
-              Panier
-              <svg
-                width="12"
-                height="12"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 5l7 7-7 7"
-                ></path>
-              </svg>
+            <button onClick={() => { setNotificationPanier(null); setView("panier"); }} className="text-[10px] font-black text-[#800020] hover:text-black uppercase tracking-widest transition-colors shrink-0 flex items-center gap-1">
+              Panier <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"></path></svg>
             </button>
           </div>
         </div>
       )}
+
+      {/* --- BANDEAU RÉSEAUX SOCIAUX --- */}
+      <div className="bg-[#800020] py-8 mt-auto shadow-inner">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h3 className="text-yellow-400 font-black uppercase tracking-widest mb-6 text-sm md:text-base">
+            Suivez-nous sur
+          </h3>
+          <div className="flex justify-center items-center gap-6 md:gap-10">
+            {/* Facebook */}
+            <a href="https://www.facebook.com/hakimiplusmada" target="_blank" rel="noreferrer" className="text-white hover:text-yellow-400 transition-all transform hover:scale-110">
+              <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
+            {/* Instagram */}
+            <a href="https://www.instagram.com/hakimiplus_mdg/" target="_blank" rel="noreferrer" className="text-white hover:text-yellow-400 transition-all transform hover:scale-110">
+              <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+            {/* WhatsApp */}
+            <a href="https://wa.me/261348697298" target="_blank" rel="noreferrer" className="text-white hover:text-yellow-400 transition-all transform hover:scale-110">
+              <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.898-4.444 9.898-9.896 0-5.452-4.445-9.897-9.898-9.897-5.454 0-9.898 4.445-9.898 9.897 0 2.052.502 3.864 1.465 5.568l-1.09 3.984 4.031-1.05v-.001zm-1.891-6.183c-.027-.044-.101-.069-.211-.124-.112-.055-.662-.328-.765-.365-.102-.037-.176-.056-.25.056-.075.111-.29.365-.355.44-.066.074-.132.083-.243.028-.112-.056-.472-.175-.898-.553-.332-.294-.556-.658-.621-.77-.066-.111-.008-.171.048-.226.051-.051.112-.124.168-.186.056-.062.075-.106.111-.176.038-.075.019-.143-.009-.199-.028-.056-.251-.606-.343-.83-.09-.218-.182-.189-.25-.192-.066-.002-.143-.002-.218-.002s-.198.028-.302.143c-.104.115-.398.39-.398.949 0 .559.407 1.099.463 1.174.056.075.801 1.222 1.94 1.694.272.112.483.178.648.228.273.087.521.074.717.045.218-.032.662-.271.755-.533.093-.262.093-.485.065-.533z"/></svg>
+            </a>
+           {/* Email */}
+            <a href="mailto:hakimiplus01@gmail.com" className="text-white hover:text-yellow-400 transition-all transform hover:scale-110">
+              <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* --- FOOTER --- */}
       <footer className="bg-gray-900 text-white py-12 border-t border-transparent transition-colors duration-500">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">

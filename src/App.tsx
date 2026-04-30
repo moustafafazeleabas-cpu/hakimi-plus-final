@@ -1085,7 +1085,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
   // 🎭 EFFET D'OUVERTURE CINÉMATOGRAPHIQUE (TAPE À L'ŒIL)
   // ======================================================================
   const rideauOuverture = !removeCurtain && (
-    <div className="fixed inset-0 z-[99999] flex pointer-events-none">
+    <div className="fixed inset-0 z-[99999] flex">
       {/* ⬅️ Rideau Gauche */}
       <div className={`w-1/2 h-full bg-white relative overflow-hidden transition-transform duration-1000 delay-100 ease-[cubic-bezier(0.25,1,0.5,1)] ${curtainOpen ? '-translate-x-full' : 'translate-x-0'} shadow-[10px_0_30px_rgba(0,0,0,0.1)] z-20`}>
         <div className="absolute top-0 left-0 w-[200%] h-full flex flex-col items-center justify-center">
@@ -1145,6 +1145,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
 
   return (
     <div className="min-h-screen font-sans flex flex-col bg-gray-50 text-gray-800 transition-colors duration-500">
+      {rideauOuverture}
       {/* HEADER PREMIUM (Retour du Rouge Hakimi) */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-500">
         {/* 📢 BANDEAU D'URGENCE ROUGE */}

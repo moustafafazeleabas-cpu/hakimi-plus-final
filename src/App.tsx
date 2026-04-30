@@ -330,6 +330,8 @@ useEffect(() => {
   const [quartiersDb, setQuartiersDb] = useState([]);
   const [maintenanceDate, setMaintenanceDate] = useState(null);
   const [isCheckingMaintenance, setIsCheckingMaintenance] = useState(true);
+  const [curtainOpen, setCurtainOpen] = useState(false);
+  const [removeCurtain, setRemoveCurtain] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [carouselDynamicImages, setCarouselDynamicImages] =
     useState(CAROUSEL_IMAGES);
@@ -431,14 +433,20 @@ useEffect(() => {
             setMessagesBanniere(data.bandeau_promo_json);
           }
         }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsCheckingMaintenance(false);
-      }
-    };
-    fetchParams();
-  }, []);
+     } catch (err) {
+          console.error(err);
+        } finally {
+          setIsCheckingMaintenance(false);
+          // 🎭 La magie opère ici : On attend 600ms pour faire monter le suspense
+          setTimeout(() => {
+            setCurtainOpen(true); // Ouvre les rideaux
+            // On supprime le rideau du code après l'animation (1.2 sec)
+            setTimeout(() => setRemoveCurtain(true), 1200); 
+          }, 600);
+        }
+      };
+      fetchParams();
+    }, []);
 
   const nextSlide = () =>
     setCurrentSlide((prev) => (prev + 1) % carouselDynamicImages.length);
@@ -1070,54 +1078,67 @@ if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && tot
 alert("📥 Préparation de votre document... Le téléchargement va démarrer dans un instant. Vérifiez vos notifications.");
     html2pdf().set(options).from(element).save();
   };
-if (isCheckingMaintenance) {
-    return (
-      <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center overflow-hidden">
-        <div className="flex flex-col items-center animate-pulse">
-          <img 
-            src={LOGO_URL} 
-            alt="Hakimi Plus" 
-            className="h-16 md:h-24 object-contain mb-8 drop-shadow-xl" 
-          />
-          <svg className="w-6 h-6 text-gray-900 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle className="opacity-10" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"></circle>
-            <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-          </svg>
+// ======================================================================
+  // 🎭 EFFET D'OUVERTURE CINÉMATOGRAPHIQUE (TAPE À L'ŒIL)
+  // ======================================================================
+  const rideauOuverture = !removeCurtain && (
+    <div className="fixed inset-0 z-[99999] flex pointer-events-none">
+      {/* ⬅️ Rideau Gauche */}
+      <div className={`w-1/2 h-full bg-white relative overflow-hidden transition-transform duration-1000 delay-100 ease-[cubic-bezier(0.25,1,0.5,1)] ${curtainOpen ? '-translate-x-full' : 'translate-x-0'} shadow-[10px_0_30px_rgba(0,0,0,0.1)] z-20`}>
+        <div className="absolute top-0 left-0 w-[200%] h-full flex flex-col items-center justify-center">
+          <img src={LOGO_URL} alt="Hakimi Plus" className={`h-20 md:h-32 object-contain drop-shadow-2xl transition-transform duration-500 ${!curtainOpen ? 'animate-pulse scale-100' : 'scale-110'}`} />
+          <div className={`mt-8 text-[#800020] font-black text-xs md:text-sm uppercase tracking-[0.3em] transition-opacity duration-300 ${curtainOpen ? 'opacity-0' : 'opacity-100'}`}>
+            Ouverture...
+          </div>
         </div>
       </div>
+      {/* ➡️ Rideau Droit */}
+      <div className={`w-1/2 h-full bg-white relative overflow-hidden transition-transform duration-1000 delay-100 ease-[cubic-bezier(0.25,1,0.5,1)] ${curtainOpen ? 'translate-x-full' : 'translate-x-0'} shadow-[-10px_0_30px_rgba(0,0,0,0.1)] z-20`}>
+        <div className="absolute top-0 right-0 w-[200%] h-full flex flex-col items-center justify-center">
+          <img src={LOGO_URL} alt="Hakimi Plus" className={`h-20 md:h-32 object-contain drop-shadow-2xl transition-transform duration-500 ${!curtainOpen ? 'animate-pulse scale-100' : 'scale-110'}`} />
+          <div className={`mt-8 text-[#800020] font-black text-xs md:text-sm uppercase tracking-[0.3em] transition-opacity duration-300 ${curtainOpen ? 'opacity-0' : 'opacity-100'}`}>
+            Ouverture...
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Si le site est en maintenance, on affiche quand même l'ouverture de rideau sur le message !
+  if (maintenanceDate !== null) {
+    return (
+      <>
+        {rideauOuverture}
+        <div className="min-h-screen bg-red-50 flex flex-col items-center justify-center p-6 text-center font-sans">
+          <span className="text-6xl md:text-8xl mb-6 animate-bounce">🚧</span>
+          <h1 className="text-3xl md:text-5xl font-black text-[#800020] uppercase mb-4 tracking-tighter drop-shadow-sm">
+            Site en maintenance
+          </h1>
+          <p className="text-lg md:text-xl font-bold text-gray-700 mb-2 max-w-lg">
+            Désolé ! Hakimi Plus est temporairement indisponible pour une petite
+            mise à jour de nos rayons.
+          </p>
+          <p className="text-md font-bold text-gray-500 mb-8">
+            Nous serons de retour très vite !
+          </p>
+          {maintenanceDate && (
+            <div className="bg-white px-8 py-6 rounded-3xl shadow-xl border-t-8 border-[#800020] transform hover:scale-105 transition">
+              <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                Retour prévu le :
+              </p>
+              <p className="text-2xl md:text-3xl font-black text-red-600">
+                {new Date(maintenanceDate).toLocaleString("fr-FR", {
+                  dateStyle: "full",
+                  timeStyle: "short",
+                })}
+              </p>
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 
-  if (maintenanceDate !== null) {
-    return (
-      <div className="min-h-screen bg-red-50 flex flex-col items-center justify-center p-6 text-center font-sans">
-        <span className="text-6xl md:text-8xl mb-6 animate-bounce">🚧</span>
-        <h1 className="text-3xl md:text-5xl font-black text-[#800020] uppercase mb-4 tracking-tighter drop-shadow-sm">
-          Site en maintenance
-        </h1>
-        <p className="text-lg md:text-xl font-bold text-gray-700 mb-2 max-w-lg">
-          Désolé ! Hakimi Plus est temporairement indisponible pour une petite
-          mise à jour de nos rayons.
-        </p>
-        <p className="text-md font-bold text-gray-500 mb-8">
-          Nous serons de retour très vite !
-        </p>
-        {maintenanceDate && (
-          <div className="bg-white px-8 py-6 rounded-3xl shadow-xl border-t-8 border-[#800020] transform hover:scale-105 transition">
-            <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-              Retour prévu le :
-            </p>
-            <p className="text-2xl md:text-3xl font-black text-red-600">
-              {new Date(maintenanceDate).toLocaleString("fr-FR", {
-                dateStyle: "full",
-                timeStyle: "short",
-              })}
-            </p>
-          </div>
-        )}
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen font-sans flex flex-col bg-gray-50 text-gray-800 transition-colors duration-500">

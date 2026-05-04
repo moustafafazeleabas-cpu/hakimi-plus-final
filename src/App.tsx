@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 import html2pdf from "html2pdf.js";
+import { Helmet, HelmetProvider } from "react-helmet-async"; // 
 
 
 // --- 🔒 SÉCURITÉ : VARIABLES D'ENVIRONNEMENT ---
@@ -161,31 +162,31 @@ const handleInstallClick = async () => {
   // --------------------------------------------------
 
   const [view, setView] = useState(() => {
-    const hash = window.location.hash.replace("#/", "");
-    return decodeURIComponent(hash) || "accueil";
+    const path = window.location.pathname.replace(/^\/+/, "");
+    return decodeURIComponent(path) || "accueil";
   });
 
   useEffect(() => {
-    const currentHashDecoded = decodeURIComponent(
-      window.location.hash.replace("#/", "")
+    const currentPathDecoded = decodeURIComponent(
+      window.location.pathname.replace(/^\/+/, "")
     );
-    if (currentHashDecoded !== view) {
+    if (currentPathDecoded !== view) {
       const encodedView = view
         .split("/")
         .map((part) => encodeURIComponent(part))
         .join("/");
-      window.location.hash = `/${encodedView}`;
+      window.history.pushState(null, "", `/${encodedView}`);
     }
     window.scrollTo(0, 0);
   }, [view]);
 
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace("#/", "");
-      setView(safeDecode(hash) || "accueil");
+    const handlePopState = () => {
+      const path = window.location.pathname.replace(/^\/+/, "");
+      setView(safeDecode(path) || "accueil");
     };
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   const [produits, setProduits] = useState([]);
@@ -1144,6 +1145,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
 
 
   return (
+    <HelmetProvider>
     <div className="min-h-screen font-sans flex flex-col bg-gray-50 text-gray-800 transition-colors duration-500">
       {rideauOuverture}
       {/* HEADER PREMIUM (Retour du Rouge Hakimi) */}
@@ -1485,7 +1487,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                             className="bg-white p-3 md:p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all border border-gray-100 relative group flex flex-col justify-between"
                           >
                            <a
-                              href={`#/produit/${p.id}`}
+                              href={`/produit/${p.id}`}
                               onClick={(e) => {
                                 if (e.ctrlKey || e.metaKey || e.button === 1) return; // Laisse le navigateur gérer le "Nouvel onglet"
                                 e.preventDefault(); // Garde la fluidité React pour un clic normal
@@ -1613,7 +1615,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                               <ChronoPromo dateFin={p.promo_fin} />
                             </div>
                            <a
-                              href={`#/produit/${p.id}`}
+                              href={`/produit/${p.id}`}
                               onClick={(e) => {
                                 if (e.ctrlKey || e.metaKey || e.button === 1) return;
                                 e.preventDefault();
@@ -1716,7 +1718,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                        {rubriques.map((rubrique, idx) => (
                           <a
                             key={idx}
-                            href="#/article"
+                            href="/article"
                             onMouseDown={() => {
                               // On sauvegarde l'article AVANT que le menu clic droit n'apparaisse
                               localStorage.setItem("hakimi_article", JSON.stringify(rubrique));
@@ -1916,7 +1918,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                     }`}
                   >
                    <a
-                      href={`#/produit/${p.id}`}
+                      href={`/produit/${p.id}`}
                       onClick={(e) => {
                         if (e.ctrlKey || e.metaKey || e.button === 1) return;
                         e.preventDefault();
@@ -2092,6 +2094,16 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
         {/* ======================================================= */}
         {view.startsWith("produit/") && produitSelectionne && (
           <div className="max-w-4xl mx-auto px-4 mt-8">
+            {/* 🚀 LE SUPER SEO PRODUIT EST ICI */}
+            <Helmet>
+              <title>{produitSelectionne.nom} | Hakimi Plus</title>
+              <meta name="description" content={produitSelectionne.description || `Achetez ${produitSelectionne.nom} chez Hakimi Plus Madagascar. Livraison rapide !`} />
+              <meta property="og:title" content={`${produitSelectionne.nom} - Hakimi Plus`} />
+              <meta property="og:description" content={produitSelectionne.description || `Disponible en stock ou sur commande.`} />
+              {produitSelectionne.image_url && (
+                <meta property="og:image" content={produitSelectionne.image_url} />
+              )}
+            </Helmet>
             <button
               onClick={() => setView("catalogue")}
               className="mb-6 font-bold text-gray-500 hover:text-[#800020] flex items-center gap-2 transition"
@@ -2251,7 +2263,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                     return (
                     <a
                         key={p.id}
-                        href={`#/produit/${p.id}`}
+                        href={`/produit/${p.id}`}
                         className="bg-white p-3 rounded-2xl border border-gray-100 flex flex-col justify-between hover:shadow-lg hover:border-gray-300 transition-all cursor-pointer group block"
                         onClick={(e) => {
                           if (e.ctrlKey || e.metaKey || e.button === 1) return;
@@ -3369,5 +3381,6 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
         </div>
       )}
     </div>
+    </HelmetProvider>
   );
 }

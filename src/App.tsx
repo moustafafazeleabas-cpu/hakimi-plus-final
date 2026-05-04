@@ -11,7 +11,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 const MAKE_WEBHOOK_URL =
   "https://hook.eu1.make.com/3z1us12zmfbitpvy7o1wy3qda07ly7l2";
 const LOGO_URL =
-  "https://wblginsktosypbmhmgbr.supabase.co/storage/v1/object/public/Hakimi%20logo/hakimi.jpg";
+  "https://wblginsktosypbmhmgbr.supabase.co/storage/v1/object/public/Hakimi%20logo/hakimi%20(3)-Photoroom.webp";
 
 const CAROUSEL_IMAGES = [
   "https://via.placeholder.com/1200x400/800020/ffffff?text=Bienvenue+chez+Hakimi+Plus",
@@ -1168,7 +1168,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
             <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setView("accueil")}>
-              <img src={LOGO_URL} alt="Logo" className="h-8 md:h-10 object-contain group-hover:scale-105 transition-transform" />
+             <img src={LOGO_URL} alt="Logo Hakimi Plus" className="h-10 md:h-14 w-auto object-contain group-hover:scale-105 transition-transform" />
               {isInstallable && !isInstalled && (
                 <button onClick={handleInstallClick} className="md:hidden bg-[#800020] text-white text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm">
                   Installer
@@ -1307,18 +1307,17 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
 
           {/* Panneau latéral (Drawer) */}
           <div className="relative w-4/5 max-w-sm bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
-            <div className="flex justify-between items-center p-6 border-b border-gray-100">
-              <div className="font-black text-xl italic tracking-tighter text-[#800020] flex items-center gap-3">
+          <div className="flex justify-between items-center p-6 border-b border-gray-100">
+              <div className="flex items-center">
                 <img
                   src={LOGO_URL}
-                  alt="Logo"
-                  className="h-8 w-8 object-contain"
+                  alt="Hakimi Plus"
+                  className="h-10 w-auto object-contain"
                 />
-                HAKIMI PLUS
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-gray-400 hover:text-red-500 text-4xl leading-none transition-colors"
+                className="text-gray-400 hover:text-[#800020] text-4xl leading-none transition-colors pb-1"
               >
                 &times;
               </button>
@@ -1359,6 +1358,33 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                   className="w-full flex items-center justify-center bg-gray-900 text-white p-4 rounded-lg font-bold uppercase text-xs tracking-[0.15em] shadow-md hover:bg-black transition-colors"
                 >
                   Suivre ma commande
+                </button>
+              </div>
+              <div className="mt-4 px-8">
+                <button
+                  onClick={async () => {
+                    const textePartage = "Découvre Hakimi Plus, l'une des meilleures boutiques en ligne à Madagascar !";
+                    const urlPartage = "https://hakimiplus.com/";
+                    
+                    if (navigator.share) {
+                      try {
+                        await navigator.share({
+                          title: 'Hakimi Plus',
+                          text: textePartage,
+                          url: urlPartage,
+                        });
+                      } catch (err) {
+                        console.log("Partage annulé");
+                      }
+                    } else {
+                      navigator.clipboard.writeText(urlPartage);
+                      alert("Lien de la boutique copié !");
+                    }
+                  }}
+                  className="w-full flex items-center justify-center bg-white border border-gray-200 text-gray-700 p-3.5 rounded-lg font-bold uppercase text-[10px] tracking-[0.1em] shadow-sm hover:bg-gray-50 transition-colors gap-2"
+                >
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                  Recommander la boutique
                 </button>
               </div>
             </div>
@@ -2149,6 +2175,34 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                     </button>
                   )}
                 </div>
+                {/* 🚀 LE BOUTON PARTAGER (Natif Mobile / Presse-papier PC) */}
+                <button
+                  onClick={async () => {
+                    const urlPartage = window.location.href; // L'URL exacte du produit
+                    const textePartage = `Regarde ce produit sur Hakimi Plus : ${produitSelectionne.nom} !`;
+                    
+                    if (navigator.share) {
+                      // Si on est sur téléphone (Android/iOS), on ouvre le menu de partage natif (WhatsApp, FB, Insta, etc.)
+                      try {
+                        await navigator.share({
+                          title: 'Hakimi Plus',
+                          text: textePartage,
+                          url: urlPartage,
+                        });
+                      } catch (err) {
+                        console.log("Partage annulé ou échoué", err);
+                      }
+                    } else {
+                      // Si on est sur un PC qui ne supporte pas navigator.share, on copie le lien et on l'affiche
+                      navigator.clipboard.writeText(urlPartage);
+                      alert("Lien du produit copié dans le presse-papier ! Vous pouvez le coller où vous voulez.");
+                    }
+                  }}
+                  className="w-full bg-white hover:bg-gray-50 border-2 border-gray-200 text-gray-700 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition flex justify-center items-center gap-2 mb-8"
+                >
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                  Partager ce produit
+                </button>
 
                 {/* 3. LA DESCRIPTION (Déplacée en dessous) */}
                 <div className="mt-auto">
@@ -3152,9 +3206,12 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
       <footer className="bg-gray-900 text-white py-12 border-t border-transparent transition-colors duration-500">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="font-black italic text-xl mb-4 tracking-tighter">
-              HAKIMI PLUS
-            </h3>
+            {/* Le logo remplace le texte HAKIMI PLUS ici 👇 */}
+            <img 
+              src={LOGO_URL} 
+              alt="Hakimi Plus" 
+              className="h-10 md:h-14 w-auto object-contain mb-4 bg-white/90 p-2 rounded-xl" 
+            />
             <p className="text-gray-400 text-sm leading-relaxed">
               Votre boutique en ligne. Retrouvez vos produits préférés avec
               un service de livraison rapide et un paiement sécurisé à la
@@ -3198,7 +3255,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
             </h3>
             <ul className="space-y-3 text-sm text-gray-400">
               <li className="flex items-center gap-2">
-                📍 Anosizato Atsinanana, Tananarive, Madagascar
+                📍 Anosizato Atsinanana, Antananarivo, Madagascar
               </li>
               <li className="flex items-center gap-2">
                 📞 034 86 972 98 / 032 15 266 01

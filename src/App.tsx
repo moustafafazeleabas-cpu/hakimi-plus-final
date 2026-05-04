@@ -1363,7 +1363,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
               <div className="mt-4 px-8">
                 <button
                   onClick={async () => {
-                    const textePartage = "Découvre Hakimi Plus, l'une des meilleures boutiques en ligne à Madagascar !";
+                    const textePartage = "Découvre Hakimi Plus, votre magasin en ligne à Madagascar !";
                     const urlPartage = "https://hakimiplus.com/";
                     
                     if (navigator.share) {
@@ -2175,25 +2175,46 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                     </button>
                   )}
                 </div>
-                {/* 🚀 LE BOUTON PARTAGER (Natif Mobile / Presse-papier PC) */}
+               {/* 🚀 LE BOUTON PARTAGER (Natif Mobile avec Image) */}
                 <button
                   onClick={async () => {
-                    const urlPartage = window.location.href; // L'URL exacte du produit
+                    const urlPartage = window.location.href; 
                     const textePartage = `Regarde ce produit sur Hakimi Plus : ${produitSelectionne.nom} !`;
                     
                     if (navigator.share) {
-                      // Si on est sur téléphone (Android/iOS), on ouvre le menu de partage natif (WhatsApp, FB, Insta, etc.)
                       try {
-                        await navigator.share({
+                        const shareData = {
                           title: 'Hakimi Plus',
                           text: textePartage,
                           url: urlPartage,
-                        });
+                        };
+
+                        // 📸 MAGIE : On télécharge l'image pour la joindre au partage !
+                        if (produitSelectionne.image_url) {
+                          try {
+                            // On récupère l'image depuis Supabase
+                            const response = await fetch(produitSelectionne.image_url);
+                            const blob = await response.blob();
+                            // On la transforme en fichier lisible par le téléphone
+                            const file = new File([blob], "produit.jpg", { type: blob.type });
+                            
+                            // On vérifie si le téléphone du client supporte le partage de fichiers
+                            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                              shareData.files = [file];
+                            }
+                          } catch (imgErr) {
+                            console.log("Impossible de joindre l'image, partage classique...", imgErr);
+                            // S'il y a un souci de connexion, on ignore et on partage au moins le texte !
+                          }
+                        }
+
+                        // Lancement du menu natif du téléphone
+                        await navigator.share(shareData);
                       } catch (err) {
                         console.log("Partage annulé ou échoué", err);
                       }
                     } else {
-                      // Si on est sur un PC qui ne supporte pas navigator.share, on copie le lien et on l'affiche
+                      // Pour les vieux PC
                       navigator.clipboard.writeText(urlPartage);
                       alert("Lien du produit copié dans le presse-papier ! Vous pouvez le coller où vous voulez.");
                     }

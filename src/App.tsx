@@ -70,6 +70,22 @@ const safeDecode = (str) => {
   }
 };
 
+// --- NOUVEAU : FONCTION POUR GÉNÉRER DES URLs PROPRES (SLUG) ---
+const genererSlug = (texte) => {
+  if (!texte) return "";
+  return texte
+    .toString()
+    .toLowerCase()
+    .normalize("NFD") // Enlève les accents (é -> e)
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9 -]/g, "") // Garde uniquement lettres, chiffres et tirets
+    .replace(/\s+/g, "-") // Remplace les espaces par des tirets
+    .replace(/-+/g, "-") // Évite les tirets multiples (ex: ---)
+    .replace(/^-+/, "") // Nettoie le début
+    .replace(/-+$/, ""); // Nettoie la fin
+};
+// ---------------------------------------------------------------
+
 function ChronoPromo({ dateFin }) {
   const [timeLeft, setTimeLeft] = useState("");
   useEffect(() => {
@@ -231,13 +247,16 @@ const [articleActuel, setArticleActuel] = useState(() => {
       );
   }, [produitSelectionne]);
 
- // --- ÉTAT POUR LES 4 PRODUITS ALÉATOIRES ---
+// --- ÉTAT POUR LES 4 PRODUITS ALÉATOIRES ---
  const [produitsAleatoires, setProduitsAleatoires] = useState([]);
 
  useEffect(() => {
    if (view.startsWith("produit/") && produits.length > 0) {
-     const prodId = view.split("produit/")[1];
-     const prod = produits.find((p) => p.id.toString() === prodId);
+     // NOUVEAU : On récupère le texte de l'URL au lieu de l'ID
+     const prodSlug = safeDecode(view.split("produit/")[1]);
+     
+     // NOUVEAU : On cherche le produit dont le nom converti correspond au slug
+     const prod = produits.find((p) => genererSlug(p.nom) === prodSlug);
      
      if (prod) {
        setProduitSelectionne(prod);
@@ -1487,13 +1506,13 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                             className="bg-white p-3 md:p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all border border-gray-100 relative group flex flex-col justify-between"
                           >
                            <a
-                              href={`/produit/${p.id}`}
-                              onClick={(e) => {
-                                if (e.ctrlKey || e.metaKey || e.button === 1) return; // Laisse le navigateur gérer le "Nouvel onglet"
-                                e.preventDefault(); // Garde la fluidité React pour un clic normal
-                                setProduitSelectionne(p);
-                                setView("produit/" + p.id);
-                              }}
+                              href={`/produit/${genererSlug(p.nom)}`}
+                      onClick={(e) => {
+                        if (e.ctrlKey || e.metaKey || e.button === 1) return;
+                        e.preventDefault();
+                        setProduitSelectionne(p);
+                        setView("produit/" + genererSlug(p.nom));
+                      }}
                               className="cursor-pointer block"
                             >
                               <div className="relative overflow-hidden aspect-square flex items-center justify-center bg-gray-50 rounded-xl mb-3 p-1">
@@ -1615,13 +1634,13 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                               <ChronoPromo dateFin={p.promo_fin} />
                             </div>
                            <a
-                              href={`/produit/${p.id}`}
-                              onClick={(e) => {
-                                if (e.ctrlKey || e.metaKey || e.button === 1) return;
-                                e.preventDefault();
-                                setProduitSelectionne(p);
-                                setView("produit/" + p.id);
-                              }}
+                             href={`/produit/${genererSlug(p.nom)}`}
+                      onClick={(e) => {
+                        if (e.ctrlKey || e.metaKey || e.button === 1) return;
+                        e.preventDefault();
+                        setProduitSelectionne(p);
+                        setView("produit/" + genererSlug(p.nom));
+                      }}
                               className="cursor-pointer mt-6 block"
                             >
                               <div className="relative overflow-hidden aspect-square flex items-center justify-center bg-gray-50 rounded-xl mb-3 p-1">
@@ -1918,12 +1937,12 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                     }`}
                   >
                    <a
-                      href={`/produit/${p.id}`}
+                      href={`/produit/${genererSlug(p.nom)}`}
                       onClick={(e) => {
                         if (e.ctrlKey || e.metaKey || e.button === 1) return;
                         e.preventDefault();
                         setProduitSelectionne(p);
-                        setView("produit/" + p.id);
+                        setView("produit/" + genererSlug(p.nom));
                       }}
                       className="cursor-pointer block"
                     >
@@ -2262,17 +2281,17 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                     const enRupture = Number(p.stock_actuel) <= 0;
                     return (
                     <a
-                        key={p.id}
-                        href={`/produit/${p.id}`}
-                        className="bg-white p-3 rounded-2xl border border-gray-100 flex flex-col justify-between hover:shadow-lg hover:border-gray-300 transition-all cursor-pointer group block"
-                        onClick={(e) => {
-                          if (e.ctrlKey || e.metaKey || e.button === 1) return;
-                          e.preventDefault();
-                          setProduitSelectionne(p);
-                          setView("produit/" + p.id);
-                          window.scrollTo({ top: 0, behavior: "smooth" }); 
-                        }}
-                      >
+          key={p.id}
+          href={`/produit/${genererSlug(p.nom)}`}
+          className="bg-white p-3 rounded-2xl border border-gray-100 flex flex-col justify-between hover:shadow-lg transition-all cursor-pointer group block"
+          onClick={(e) => {
+            if (e.ctrlKey || e.metaKey || e.button === 1) return;
+            e.preventDefault();
+            setProduitSelectionne(p);
+            setView("produit/" + genererSlug(p.nom));
+            window.scrollTo({ top: 0, behavior: "smooth" }); 
+          }}
+        >
                         <div className="relative overflow-hidden aspect-square flex items-center justify-center bg-gray-50 rounded-xl mb-3">
                           {p.image_url ? (
                             <img

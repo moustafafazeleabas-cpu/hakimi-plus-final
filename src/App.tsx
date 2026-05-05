@@ -1976,9 +1976,8 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                           </span>
                         )}
                         {p.sur_commande === true && (
-                          <div className="absolute top-2 right-2 bg-orange-100 text-orange-700 text-[9px] font-black px-2 py-1 rounded-full uppercase">
-                            Pré-commande
-                          </div>
+                          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur border border-gray-100 text-gray-800 text-[9px] font-bold px-2.5 py-1 rounded uppercase tracking-wider shadow-sm">Sur commande
+                        </div>
                         )}
                       </div>
                       <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">
@@ -2192,13 +2191,13 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
 
                 {/* 2. LE BOUTON D'ACTION (Remonté en haut pour l'efficacité) */}
                 <div className="mb-8 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                  {produitSelectionne.sur_commande && (
-                    <div className="bg-orange-50 border border-orange-200 p-3 rounded-xl mb-4">
-                      <p className="text-xs font-bold text-orange-800">
-                        ⏱️ {produitSelectionne.delai_commande || "Disponible sous 15 jours"}
+                 {produitSelectionne.sur_commande && (
+                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-xl mb-4">
+                      <p className="text-xs font-bold text-gray-900 uppercase tracking-wide">
+                        Disponibilité : {produitSelectionne.delai_commande || "Sous 15 jours"}
                       </p>
-                      <p className="text-[10px] text-orange-600 mt-1">
-                        Un acompte de <strong>60%</strong> vous sera demandé après validation.
+                      <p className="text-[10px] text-gray-500 mt-1.5 font-medium leading-relaxed">
+                        Un acompte de <strong className="text-gray-900">60%</strong> sera demandé pour valider cette pré-commande.
                       </p>
                     </div>
                   )}
@@ -2208,18 +2207,18 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                       {produitSelectionne.texte_rupture || "Rupture de stock"}
                     </div>
                   ) : (
-                    <button
-                      onClick={() => addToCart(produitSelectionne)}
-                      className={`w-full text-white py-4 rounded-xl font-black text-sm uppercase transition shadow-lg flex justify-center items-center gap-3 ${
-                        produitSelectionne.sur_commande
-                          ? "bg-orange-500 hover:bg-orange-600"
-                          : "bg-[#800020] hover:bg-black"
-                      }`}
-                    >
-                      {produitSelectionne.sur_commande
-                        ? "📦 Commander cet article"
-                        : "🛒 Ajouter au panier"}
-                    </button>
+                   <button
+                    onClick={() => addToCart(produitSelectionne)}
+                    className={`w-full py-4 rounded-xl font-bold text-sm uppercase tracking-[0.1em] transition-all duration-300 flex justify-center items-center gap-3 ${
+                      produitSelectionne.sur_commande
+                        ? "bg-gray-900 hover:bg-gray-800 text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)]"
+                        : "bg-[#800020] hover:bg-black text-white shadow-[0_8px_30px_rgb(128,0,32,0.2)]"
+                    }`}
+                  >
+                    {produitSelectionne.sur_commande
+                      ? "Commander cet article"
+                      : "Ajouter au panier"}
+                  </button>
                   )}
                 </div>
                {/* 🚀 LE BOUTON PARTAGER (Natif Mobile avec Image) */}
@@ -2762,52 +2761,37 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                           {formClient.type_livraison === "TANA" && (
                             <button
                               type="button"
-                              onClick={() =>
-                                setFormClient({
-                                  ...formClient,
-                                  methode_paiement: "CASH",
-                                })
-                              }
-                              className={`flex-1 py-2 rounded-lg font-black text-[10px] uppercase transition-all border ${
+                              onClick={() => setFormClient({ ...formClient, methode_paiement: "CASH" })}
+                              className={`flex-1 py-3 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all border ${
                                 formClient.methode_paiement === "CASH"
-                                  ? "bg-gray-800 text-white border-gray-800"
+                                  ? "bg-gray-900 text-white border-gray-900 shadow-md"
                                   : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
                               }`}
                             >
-                              💵 Cash
+                              Espèces
                             </button>
                           )}
                           <button
                             type="button"
-                            onClick={() =>
-                              setFormClient({
-                                ...formClient,
-                                methode_paiement: "MVOLA",
-                              })
-                            }
-                            className={`flex-1 py-2 rounded-lg font-black text-[10px] uppercase transition-all border ${
+                            onClick={() => setFormClient({ ...formClient, methode_paiement: "MVOLA" })}
+                            className={`flex-1 py-3 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all border ${
                               formClient.methode_paiement === "MVOLA"
-                                ? "bg-[#00c853] text-white border-[#00c853]"
-                                : "bg-white text-gray-500 border-gray-200 hover:border-[#00c853]"
+                                ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                                : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
                             }`}
                           >
-                            🟢 MVola
+                            MVola
                           </button>
                           <button
                             type="button"
-                            onClick={() =>
-                              setFormClient({
-                                ...formClient,
-                                methode_paiement: "ORANGE",
-                              })
-                            }
-                            className={`flex-1 py-2 rounded-lg font-black text-[10px] uppercase transition-all border ${
+                            onClick={() => setFormClient({ ...formClient, methode_paiement: "ORANGE" })}
+                            className={`flex-1 py-3 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all border ${
                               formClient.methode_paiement === "ORANGE"
-                                ? "bg-[#ff6600] text-white border-[#ff6600]"
-                                : "bg-white text-gray-500 border-gray-200 hover:border-[#ff6600]"
+                                ? "bg-gray-900 text-white border-gray-900 shadow-md"
+                                : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
                             }`}
                           >
-                            🟠 Orange
+                            Orange Money
                           </button>
                         </div>
                       </div>
@@ -3270,80 +3254,75 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
         </div>
       </div>
 
-      {/* --- FOOTER --- */}
-      <footer className="bg-gray-900 text-white py-12 border-t border-transparent transition-colors duration-500">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+     {/* --- FOOTER PREMIUM --- */}
+      <footer className="bg-gray-900 text-white py-16 border-t border-transparent transition-colors duration-500">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
           <div>
-            {/* Le logo remplace le texte HAKIMI PLUS ici 👇 */}
             <img 
               src={LOGO_URL} 
               alt="Hakimi Plus" 
-              className="h-10 md:h-14 w-auto object-contain mb-4 bg-white/90 p-2 rounded-xl" 
+              className="h-10 md:h-12 w-auto object-contain mb-6 bg-white/5 p-2 rounded-xl backdrop-blur-sm" 
             />
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Votre boutique en ligne. Retrouvez vos produits préférés avec
-              un service de livraison rapide et un paiement sécurisé à la
+            <p className="text-gray-400 text-sm leading-relaxed font-medium">
+              L'excellence à votre porte. Retrouvez vos produits préférés avec
+              un service de livraison irréprochable et un paiement sécurisé à la
               réception.
             </p>
           </div>
           <div>
-            <h3 className="font-bold text-sm text-gray-300 uppercase tracking-widest mb-4">
-              Liens Rapides
+            <h3 className="font-bold text-xs text-white uppercase tracking-[0.2em] mb-6">
+              Navigation
             </h3>
-            <ul className="space-y-3 text-sm text-gray-400">
+            <ul className="space-y-4 text-sm text-gray-400 font-medium">
               <li>
-                <button
-                  onClick={() => setView("catalogue")}
-                  className="hover:text-white transition"
-                >
-                  🛍️ Notre Catalogue
+                <button onClick={() => setView("catalogue")} className="hover:text-white transition-colors">
+                  Notre Catalogue
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => setView("livraison")}
-                  className="hover:text-white transition"
-                >
-                  🚚 Infos Livraison
+                <button onClick={() => setView("livraison")} className="hover:text-white transition-colors">
+                  Informations de Livraison
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => setView("conditions")}
-                  className="hover:text-white transition"
-                >
-                  📜 Conditions Générales
+                <button onClick={() => setView("conditions")} className="hover:text-white transition-colors">
+                  Conditions Générales
                 </button>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="font-bold text-sm text-gray-300 uppercase tracking-widest mb-4">
-              Nos coordonnées
+            <h3 className="font-bold text-xs text-white uppercase tracking-[0.2em] mb-6">
+              Contact & Support
             </h3>
-            <ul className="space-y-3 text-sm text-gray-400">
-              <li className="flex items-center gap-2">
-                📍 Anosizato Atsinanana, Antananarivo, Madagascar
+            <ul className="space-y-4 text-sm text-gray-400 font-medium">
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 opacity-60">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </span>
+                Anosizato Atsinanana, Antananarivo
               </li>
-              <li className="flex items-center gap-2">
-                📞 034 86 972 98 / 032 15 266 01
+              <li className="flex items-center gap-3">
+                <span className="opacity-60">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                </span>
+                034 86 972 98 / 032 15 266 01
               </li>
-              <li>
+              <li className="pt-2">
                 <a
                   href="https://wa.me/261348697298"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-block mt-2 bg-green-500 hover:bg-green-600 text-white text-xs font-black uppercase px-4 py-2 rounded-lg transition shadow-md"
+                  className="inline-flex items-center gap-2 border border-gray-700 hover:border-white hover:bg-white hover:text-gray-900 text-white text-xs font-bold uppercase tracking-wider px-5 py-3 rounded-lg transition-all duration-300"
                 >
-                  💬 Contactez-nous via WhatsApp
+                  Contacter le support
                 </a>
               </li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-gray-800 pt-6 text-center text-xs text-gray-500 font-bold">
-          &copy; {new Date().getFullYear()} Version 1.0-Hakimi Plus. Tous droits
-          réservés.
+        <div className="border-t border-gray-800 pt-8 text-center text-xs text-gray-500 font-medium tracking-wide">
+          &copy; {new Date().getFullYear()} Hakimi Plus. Tous droits réservés.
         </div>
       </footer>
       {/* --- 🍎 INSTRUCTIONS D'INSTALLATION POUR IPHONE --- */}

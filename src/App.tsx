@@ -126,6 +126,7 @@ export default function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  
   useEffect(() => {
     if (isSearchModalOpen && searchInputRef.current) {
       setTimeout(() => searchInputRef.current.focus(), 100);

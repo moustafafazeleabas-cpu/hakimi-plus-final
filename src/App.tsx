@@ -114,6 +114,24 @@ function ChronoPromo({ dateFin }) {
 export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMiniCart, setShowMiniCart] = useState(false);
+
+  // --- NOUVEAU : MOTEURS POUR RECHERCHE ET STICKY CART ---
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [showStickyCart, setShowStickyCart] = useState(false);
+  const searchInputRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => setShowStickyCart(window.scrollY > 300);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (isSearchModalOpen && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current.focus(), 100);
+    }
+  }, [isSearchModalOpen]);
+  
   // --- 🚀 MOTEUR ONESIGNAL (NOTIFICATIONS PUSH) ---
  
 // --- 📱 LOGIQUE PWA (INSTALLATION & MISE À JOUR) ---
@@ -1235,20 +1253,15 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 md:gap-4">
-            <div ref={searchContainerRefDesktop} className="hidden lg:flex items-center rounded-full px-4 py-2 w-64 bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-red-100 transition-all duration-300 border border-transparent">
-              <input
-                type="text"
-                placeholder="Rechercher un produit..."
-                className="bg-transparent border-none outline-none text-xs font-bold w-full text-gray-800 placeholder-gray-400"
-                value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); if (e.target.value && view !== "catalogue") setView("catalogue"); }}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.target.blur(); if (view !== "catalogue") setView("catalogue"); } }}
-              />
-              <button onClick={() => { if (searchQuery && view !== "catalogue") setView("catalogue"); }} className="ml-2 text-gray-400 hover:text-[#800020] transition-colors">
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-              </button>
-            </div>
+        <div className="flex items-center gap-2 md:gap-4">
+            {/* BOUTON RECHERCHE PREMIUM */}
+            <button 
+              onClick={() => setIsSearchModalOpen(true)} 
+              className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-500 px-3 md:px-4 py-2 md:py-2.5 rounded-full transition-colors w-10 md:w-64 border border-gray-100 shadow-inner"
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              <span className="hidden md:inline text-xs font-bold tracking-wide">Rechercher un produit...</span>
+            </button>
 
             <button onClick={() => setView("recherche_suivi")} className="p-2 text-gray-800 hover:text-[#800020] transition-colors" title="Suivre ma commande">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
@@ -1317,21 +1330,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
           </div>
         </div>
 
-        <div className="lg:hidden px-4 pb-3 max-w-7xl mx-auto w-full animate-in fade-in" ref={searchContainerRefMobile}>
-          <div className="flex items-center rounded-2xl px-4 py-2.5 shadow-sm transition-colors duration-500 bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-red-100 border border-gray-100">
-            <input
-              type="text"
-              placeholder="Rechercher un produit..."
-              className="bg-transparent border-none outline-none text-sm font-bold w-full text-gray-800 placeholder-gray-400"
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); if (e.target.value && view !== "catalogue") setView("catalogue"); }}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.target.blur(); if (view !== "catalogue") setView("catalogue"); } }}
-            />
-            <button onClick={() => { if (searchQuery && view !== "catalogue") setView("catalogue"); }} className="ml-2 text-gray-400 hover:text-[#800020]">
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </button>
-          </div>
-        </div>
+       
       </header>
       {/* MENU MOBILE MODERNE (Sleek Drawer) */}
       {isMobileMenuOpen && (
@@ -1430,6 +1429,50 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
       )}
 
       <main className="flex-grow pb-12">
+        {/* --- MODAL DE RECHERCHE PLEINE PAGE --- */}
+        {isSearchModalOpen && (
+          <div className="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-300 flex flex-col">
+            <div className="flex items-center p-4 md:p-6 border-b border-gray-100">
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 mx-2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Que recherchez-vous aujourd'hui ?"
+                className="flex-1 bg-transparent border-none outline-none text-xl md:text-3xl font-black text-gray-900 placeholder-gray-300 px-4"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { setIsSearchModalOpen(false); setView("catalogue"); window.scrollTo(0,0); } }}
+              />
+              <button onClick={() => setIsSearchModalOpen(false)} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 transition-colors">
+                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
+               {searchQuery.length > 1 ? (
+                 <div className="max-w-4xl mx-auto space-y-2">
+                   <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 pl-2">Résultats en direct</h3>
+                   {produits.filter(p => p.nom.toLowerCase().includes(searchQuery.toLowerCase()) || p.categorie_web?.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 8).map(p => (
+                      <button key={p.id} onClick={() => { setIsSearchModalOpen(false); setProduitSelectionne(p); setView(`produit/${genererSlug(p.nom)}`); setSearchQuery(""); }} className="w-full flex items-center gap-4 p-3 hover:bg-gray-50 rounded-2xl transition-colors text-left group border border-transparent hover:border-gray-100">
+                         <div className="w-14 h-14 bg-white border border-gray-100 rounded-xl flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                            {p.image_url ? <img src={p.image_url} className="w-full h-full object-contain p-1 group-hover:scale-110 transition-transform" alt="" /> : <span className="text-[8px] text-gray-400">Image</span>}
+                         </div>
+                         <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-gray-900 truncate group-hover:text-[#800020] transition-colors">{p.nom}</p>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{p.categorie_web || "Divers"}</p>
+                         </div>
+                         <div className="text-sm font-black text-gray-900 shrink-0 bg-gray-100 px-3 py-1.5 rounded-lg">{formatAr(p.prix_vente)} Ar</div>
+                      </button>
+                   ))}
+                 </div>
+               ) : (
+                 <div className="max-w-3xl mx-auto text-center py-32 opacity-50 flex flex-col items-center">
+                    <svg width="64" height="64" fill="none" stroke="currentColor" strokeWidth="1" className="text-gray-300 mb-6" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <p className="text-lg font-bold text-gray-400">Tapez le nom d'un produit, une marque...</p>
+                 </div>
+               )}
+            </div>
+          </div>
+        )}
         {view === "accueil" && (
           <div className="animate-in fade-in duration-700 slide-in-from-bottom-4">
             {isLoadingProducts ? (
@@ -2061,8 +2104,15 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
             </div>
 
             {isLoadingProducts && (
-              <div className="col-span-full flex flex-col items-center justify-center py-20">
-                <div className="w-8 h-8 border-2 border-gray-200 border-t-gray-800 rounded-full animate-spin mb-4"></div>
+              <div className="col-span-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 animate-in fade-in">
+                 {[...Array(10)].map((_, i) => (
+                    <div key={i} className="bg-white p-3 md:p-5 rounded-2xl border border-gray-100">
+                       <div className="w-full aspect-square bg-gray-100 rounded-xl mb-4 animate-pulse"></div>
+                       <div className="h-2 bg-gray-100 rounded-full w-1/3 mb-3 animate-pulse"></div>
+                       <div className="h-3 bg-gray-100 rounded-full w-3/4 mb-6 animate-pulse"></div>
+                       <div className="h-10 bg-gray-100 rounded-xl w-full animate-pulse"></div>
+                    </div>
+                 ))}
               </div>
             )}
             {!isLoadingProducts && produits.length === 0 && (
@@ -2138,12 +2188,35 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                 <meta property="og:image" content={produitSelectionne.image_url} />
               )}
             </Helmet>
-            <button
-              onClick={() => setView("catalogue")}
-              className="mb-6 font-bold text-gray-500 hover:text-[#800020] flex items-center gap-2 transition"
-            >
-              ← Retour au catalogue
-            </button>
+            {/* FIL D'ARIANE PREMIUM */}
+            <nav className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-8 whitespace-nowrap overflow-x-auto no-scrollbar pb-2">
+              <button onClick={() => setView("accueil")} className="hover:text-gray-900 transition-colors flex items-center gap-1">
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                Accueil
+              </button>
+              <span className="text-gray-300">/</span>
+              <button onClick={() => {
+                const isTech = produitSelectionne.categorie_web?.toUpperCase() === "INFORMATIQUE";
+                setView(`${isTech ? "informatique" : "catalogue"}/${genererSlug(produitSelectionne.categorie_web || "Divers")}`);
+                window.scrollTo(0,0);
+              }} className="hover:text-gray-900 transition-colors">
+                {produitSelectionne.categorie_web || "Divers"}
+              </button>
+              {produitSelectionne.sous_categorie_web && (
+                 <>
+                   <span className="text-gray-300">/</span>
+                   <button onClick={() => {
+                     const isTech = produitSelectionne.categorie_web?.toUpperCase() === "INFORMATIQUE";
+                     setView(`${isTech ? "informatique" : "catalogue"}/${genererSlug(produitSelectionne.categorie_web)}/${genererSlug(produitSelectionne.sous_categorie_web)}`);
+                     window.scrollTo(0,0);
+                   }} className="hover:text-gray-900 transition-colors">
+                     {produitSelectionne.sous_categorie_web}
+                   </button>
+                 </>
+              )}
+              <span className="text-gray-300">/</span>
+              <span className="text-gray-900 truncate max-w-[150px] md:max-w-xs">{produitSelectionne.nom}</span>
+            </nav>
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col md:flex-row">
               <div className="md:w-1/2 bg-gray-50 flex items-center justify-center p-6">
                 {produitSelectionne.image_url ? (
@@ -2272,6 +2345,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                 </button>
 
                 {/* 3. LA DESCRIPTION (Déplacée en dessous) */}
+                {/* 3. LA DESCRIPTION (Déplacée en dessous) */}
                 <div className="mt-auto">
                   <h3 className="text-sm font-black uppercase text-gray-800 mb-2 border-b border-gray-100 pb-2">
                     Description
@@ -2283,6 +2357,25 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                 </div>
               </div>
             </div>
+
+            {/* STICKY BAR MOBILE (Apparaît au scroll) */}
+            <div className={`md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-gray-100 p-4 pb-6 z-[150] transition-transform duration-500 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] ${showStickyCart ? "translate-y-0" : "translate-y-full"}`}>
+              <div className="flex items-center justify-between gap-4 max-w-md mx-auto">
+                 <div className="flex flex-col">
+                   <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Total Net</span>
+                   <span className="text-xl font-black text-[#800020] leading-none">
+                     {formatAr(produitSelectionne.prix_promo && new Date(produitSelectionne.promo_debut) <= new Date() && new Date(produitSelectionne.promo_fin) >= new Date() ? produitSelectionne.prix_promo : produitSelectionne.prix_vente)} Ar
+                   </span>
+                 </div>
+                 <button 
+                   onClick={() => addToCart(produitSelectionne)} 
+                   className={`flex-1 text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-transform ${produitSelectionne.sur_commande ? "bg-gray-900" : "bg-[#800020]"}`}
+                 >
+                    {produitSelectionne.sur_commande ? "Commander" : "Ajouter"}
+                 </button>
+              </div>
+            </div>
+
             {/* 🎁 SECTION CROSS-SELLING (ACHATS COMPULSIFS ALÉATOIRES) 🎁 */}
             {produitsAleatoires.length > 0 && (
               <div className="mt-12 mb-8 border-t border-gray-100 pt-8 animate-in fade-in duration-500">
@@ -2419,7 +2512,9 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
               <div className="lg:col-span-7 space-y-4">
                 {panier.length === 0 ? (
                   <div className="bg-white p-12 rounded-xl shadow-sm text-center border border-gray-100 flex flex-col items-center">
-                    <span className="text-5xl mb-4 drop-shadow-sm">🛒</span>
+                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                      <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path strokeLinecap="round" strokeLinejoin="round" d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                    </div>
                     <p className="text-gray-500 font-bold mb-6 text-lg">
                       Votre panier est vide.
                     </p>
@@ -2657,15 +2752,15 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">
                           Zone de livraison *
                         </label>
-                        <div className="flex bg-gray-100 p-1 rounded-lg border border-gray-200">
+                        <div className="flex bg-gray-100/80 p-1.5 rounded-xl border border-gray-200/60 shadow-inner">
                           {panier.some(p => p.categorie_web === "Services" || p.sous_categorie_web === "Services") ? (
-                            <button type="button" className="flex-1 py-1.5 rounded-md font-black text-[11px] uppercase bg-white text-purple-600 shadow-sm cursor-default">
-                              💻 Envoi Numérique (Obligatoire)
+                            <button type="button" className="flex-1 py-2.5 rounded-lg font-bold text-[10px] uppercase tracking-wider bg-white text-gray-900 shadow-sm cursor-default border border-gray-200/50">
+                              Envoi Numérique
                             </button>
                           ) : (
                             <>
-                              <button type="button" onClick={() => handleShippingChange("TANA")} className={`flex-1 py-1.5 rounded-md font-black text-[11px] uppercase transition-all ${formClient.type_livraison === "TANA" ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>📍 Tana</button>
-                              <button type="button" onClick={() => handleShippingChange("PROVINCE")} className={`flex-1 py-1.5 rounded-md font-black text-[11px] uppercase transition-all ${formClient.type_livraison === "PROVINCE" ? "bg-white text-blue-600 shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>🚚 Province</button>
+                              <button type="button" onClick={() => handleShippingChange("TANA")} className={`flex-1 py-2.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all duration-300 ${formClient.type_livraison === "TANA" ? "bg-white text-gray-900 shadow-sm border border-gray-200/50" : "text-gray-400 hover:text-gray-600"}`}>Antananarivo</button>
+                              <button type="button" onClick={() => handleShippingChange("PROVINCE")} className={`flex-1 py-2.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all duration-300 ${formClient.type_livraison === "PROVINCE" ? "bg-white text-gray-900 shadow-sm border border-gray-200/50" : "text-gray-400 hover:text-gray-600"}`}>Province</button>
                             </>
                           )}
                         </div>
@@ -2742,9 +2837,13 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                       ) : formClient.type_livraison === "DIGITAL" ? (
                         <div className="space-y-3 bg-purple-50 p-4 rounded-xl border border-purple-100 mt-3">
                           <label className="text-[10px] font-bold text-purple-800 uppercase block mb-1">Recevoir la commande par :</label>
-                          <div className="flex gap-2 mb-2">
-                            <button type="button" onClick={() => setFormClient({...formClient, canal_digital: 'WHATSAPP'})} className={`flex-1 py-2 rounded-lg font-black text-[10px] uppercase transition-all ${formClient.canal_digital === 'WHATSAPP' ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-500 border border-gray-200'}`}>💬 WhatsApp</button>
-                            <button type="button" onClick={() => setFormClient({...formClient, canal_digital: 'EMAIL'})} className={`flex-1 py-2 rounded-lg font-black text-[10px] uppercase transition-all ${formClient.canal_digital === 'EMAIL' ? 'bg-blue-500 text-white shadow-sm' : 'bg-white text-gray-500 border border-gray-200'}`}>📧 Email</button>
+                         <div className="flex gap-3 mb-4 mt-2">
+                            <button type="button" onClick={() => setFormClient({...formClient, canal_digital: 'WHATSAPP'})} className={`flex-1 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all duration-300 border ${formClient.canal_digital === 'WHATSAPP' ? 'bg-[#25D366] text-white border-[#25D366] shadow-[0_8px_20px_rgba(37,211,102,0.25)]' : 'bg-white text-gray-500 border-gray-200 hover:border-[#25D366] hover:text-[#25D366]'}`}>
+                              WhatsApp
+                            </button>
+                            <button type="button" onClick={() => setFormClient({...formClient, canal_digital: 'EMAIL'})} className={`flex-1 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all duration-300 border ${formClient.canal_digital === 'EMAIL' ? 'bg-blue-500 text-white border-blue-500 shadow-[0_8px_20px_rgba(59,130,246,0.25)]' : 'bg-white text-gray-500 border-gray-200 hover:border-blue-500 hover:text-blue-500'}`}>
+                              Adresse Email
+                            </button>
                           </div>
                           {formClient.canal_digital === 'EMAIL' ? (
                             <input type="email" placeholder="Votre adresse Email *" className="w-full p-3 bg-white border border-purple-200 rounded-lg outline-none font-bold text-sm text-gray-800 focus:border-purple-500" value={formClient.email} onChange={e => setFormClient({...formClient, email: e.target.value})} required disabled={isSubmitting} />
@@ -2757,15 +2856,15 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                       <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">
                         Moyen de Paiement *
                       </label>
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                           {formClient.type_livraison === "TANA" && (
                             <button
                               type="button"
                               onClick={() => setFormClient({ ...formClient, methode_paiement: "CASH" })}
-                              className={`flex-1 py-3 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all border ${
+                              className={`flex-1 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-[0.15em] transition-all duration-300 border ${
                                 formClient.methode_paiement === "CASH"
-                                  ? "bg-gray-900 text-white border-gray-900 shadow-md"
-                                  : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                                  ? "bg-blue-600 text-white border-blue-600 shadow-[0_8px_20px_rgba(37,99,235,0.25)]"
+                                  : "bg-white text-gray-500 border-gray-200 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/30"
                               }`}
                             >
                               Espèces
@@ -2774,10 +2873,10 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                           <button
                             type="button"
                             onClick={() => setFormClient({ ...formClient, methode_paiement: "MVOLA" })}
-                            className={`flex-1 py-3 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all border ${
+                            className={`flex-1 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-[0.15em] transition-all duration-300 border ${
                               formClient.methode_paiement === "MVOLA"
-                                ? "bg-gray-900 text-white border-gray-900 shadow-md"
-                                : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                                ? "bg-[#00c853] text-white border-[#00c853] shadow-[0_8px_20px_rgba(0,200,83,0.25)]"
+                                : "bg-white text-gray-500 border-gray-200 hover:border-[#00c853] hover:text-[#00c853] hover:bg-[#00c853]/5"
                             }`}
                           >
                             MVola
@@ -2785,13 +2884,13 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                           <button
                             type="button"
                             onClick={() => setFormClient({ ...formClient, methode_paiement: "ORANGE" })}
-                            className={`flex-1 py-3 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all border ${
+                            className={`flex-1 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-[0.15em] transition-all duration-300 border ${
                               formClient.methode_paiement === "ORANGE"
-                                ? "bg-gray-900 text-white border-gray-900 shadow-md"
-                                : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
+                                ? "bg-[#ff6600] text-white border-[#ff6600] shadow-[0_8px_20px_rgba(255,102,0,0.25)]"
+                                : "bg-white text-gray-500 border-gray-200 hover:border-[#ff6600] hover:text-[#ff6600] hover:bg-[#ff6600]/5"
                             }`}
                           >
-                            Orange Money
+                            Orange
                           </button>
                         </div>
                       </div>
@@ -3122,7 +3221,9 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
               {/* Message Dynamique (Physique vs Digital) */}
               {commandeValidee.articles.some(p => p.categorie_web === "Services" || p.sous_categorie_web === "Services") ? (
                 <div className="mb-10 p-6 bg-purple-50 rounded-2xl border border-purple-100 flex gap-4 items-start">
-                  <div className="text-2xl mt-1">💻</div>
+                 <div className="mt-1 w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 shrink-0">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                  </div>
                   <div>
                     <h3 className="font-black uppercase text-sm text-purple-900 mb-1 tracking-wider">Livraison Numérique</h3>
                     <p className="text-sm font-bold text-purple-700 leading-relaxed">Votre service sera activé et envoyé sur le canal choisi sous 24h ouvrées après confirmation du paiement.</p>
@@ -3154,7 +3255,9 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
               <div className="flex flex-col gap-3">
                 {/* INFO SUIVI AJOUTÉE */}
               <div className="mb-8 p-5 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-start gap-4">
-                <div className="text-xl mt-0.5 animate-bounce">📍</div>
+                <div className="mt-1 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0 animate-bounce">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                </div>
                 <div>
                   <h3 className="font-black text-sm text-blue-900 mb-1 tracking-tight">Où est ma commande ?</h3>
                   <p className="text-xs font-medium text-blue-800 leading-relaxed">

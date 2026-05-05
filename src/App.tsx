@@ -272,21 +272,33 @@ const [articleActuel, setArticleActuel] = useState(() => {
    }
  }, [view, produits]);
 
-  const [menusWeb, setMenusWeb] = useState([]);
-  const [menuActuel, setMenuActuel] = useState("");
-  const [sousCatActuelle, setSousCatActuelle] = useState("TOUS LES PRODUITS");
+const [menusWeb, setMenusWeb] = useState([]);
+  
+  // 🚀 CORRECTION BUG FLASH & DÉCODAGE DES BELLES URLs CATÉGORIES
+  let menuActuel = "";
+  let sousCatActuelle = "TOUS LES PRODUITS";
 
-  useEffect(() => {
-    if (view.startsWith("catalogue")) {
-      const parts = view.split("/");
-      setMenuActuel(parts[1] ? decodeURIComponent(parts[1]).trim() : "");
-      setSousCatActuelle(parts[2] ? decodeURIComponent(parts[2]).trim() : "TOUS LES PRODUITS");
-    } else if (view.startsWith("informatique")) {
-      const parts = view.split("/");
-      setMenuActuel(parts[1] ? decodeURIComponent(parts[1]).trim() : "");
-      setSousCatActuelle(parts[2] ? decodeURIComponent(parts[2]).trim() : "TOUS LES PRODUITS");
+  if (view.startsWith("catalogue") || view.startsWith("informatique")) {
+    const parts = view.split("/");
+    const menuSlug = parts[1] ? parts[1].trim() : "";
+    const sousCatSlug = parts[2] ? parts[2].trim() : "";
+
+    if (menuSlug && menusWeb.length > 0) {
+      // On cherche la vraie catégorie qui correspond au texte propre (slug) de l'URL
+      const matchedMenu = menusWeb.find(m => genererSlug(m.PARENT || m.parent) === menuSlug);
+      if (matchedMenu) {
+        menuActuel = matchedMenu.PARENT || matchedMenu.parent;
+        
+        if (sousCatSlug) {
+          const subs = matchedMenu.sous_categories || matchedMenu.enfants || [];
+          const matchedSub = subs.find(sc => genererSlug(sc) === sousCatSlug);
+          if (matchedSub) {
+            sousCatActuelle = matchedSub;
+          }
+        }
+      }
     }
-  }, [view]);
+  }
   useEffect(() => {
     // 1. Gestion du titre de l'onglet
     let currentTitle = "Hakimi Plus";
@@ -1165,6 +1177,10 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
 
   return (
     <HelmetProvider>
+    {/* 🚀 CORRECTION FAVICON : Force l'icône sur toutes les pages */}
+    <Helmet>
+      <link rel="icon" type="image/webp" href={LOGO_URL} />
+    </Helmet>
     <div className="min-h-screen font-sans flex flex-col bg-gray-50 text-gray-800 transition-colors duration-500">
       {rideauOuverture}
       {/* HEADER PREMIUM (Retour du Rouge Hakimi) */}
@@ -1840,7 +1856,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                   return (
                     <button
                       key={idx}
-                      onClick={() => setView(`${prefixeBase}/` + nomMenu)}
+                      onClick={() => setView(`${prefixeBase}/` + genererSlug(nomMenu))}
                       className={`whitespace-nowrap shrink-0 snap-start px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
                         menuActuel === nomMenu
                           ? (isSurCommande ? "bg-[#ea580c] text-white shadow-md border-transparent" : "bg-gray-900 text-white shadow-md border-transparent")
@@ -1877,8 +1893,8 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                         <button
                           key={idx}
                           onClick={() =>
-                            setView(`${view.startsWith("informatique") ? "informatique" : "catalogue"}/${menuActuel}/${sc}`)
-                          }
+    setView(`${view.startsWith("informatique") ? "informatique" : "catalogue"}/${genererSlug(menuActuel)}/${genererSlug(sc)}`)
+  }
                           className={`whitespace-nowrap shrink-0 snap-start px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all border ${
                             sousCatActuelle === sc
                               ? "bg-white text-gray-900 border-gray-900 shadow-sm"

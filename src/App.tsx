@@ -114,6 +114,21 @@ function ChronoPromo({ dateFin }) {
 export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMiniCart, setShowMiniCart] = useState(false);
+  // 🚀 ASTUCE MOBILE : Cacher le clavier quand on fait défiler la page
+  useEffect(() => {
+    const handleScroll = () => {
+      // Si un champ de texte est actif (clavier ouvert) et qu'on scrolle, on le désactive
+      if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+        document.activeElement.blur();
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('touchmove', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
+    };
+  }, []);
 
   // --- NOUVEAU : MOTEURS POUR RECHERCHE ET STICKY CART ---
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);

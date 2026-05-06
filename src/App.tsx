@@ -582,6 +582,29 @@ useEffect(() => {
       }
       setNotificationPanier(produitA_Ajouter.nom);
       setTimeout(() => setNotificationPanier(null), 3000);
+
+      // 📈 AXE 2 : PIXEL D'AJOUT AU PANIER (FB & GOOGLE)
+      if (window.fbq && typeof window.fbq === "function") {
+        window.fbq("track", "AddToCart", {
+          content_name: produitA_Ajouter.nom,
+          content_ids: [produitA_Ajouter.id],
+          content_type: 'product',
+          value: Number(produitA_Ajouter.prix_vente),
+          currency: "MGA"
+        });
+      }
+      if (window.gtag && typeof window.gtag === "function") {
+        window.gtag("event", "add_to_cart", {
+          currency: "MGA",
+          value: Number(produitA_Ajouter.prix_vente),
+          items: [{
+            item_id: produitA_Ajouter.id,
+            item_name: produitA_Ajouter.nom,
+            price: Number(produitA_Ajouter.prix_vente),
+            quantity: 1
+          }]
+        });
+      }
     };
 
   const removeFromCart = (id) =>
@@ -681,6 +704,7 @@ const validerCommande = async (e) => {
       alert("Veuillez sélectionner un moyen de paiement.");
       return;
     }
+    
     // --- VÉRIFICATION DU NUMÉRO PRINCIPAL ---
     const numeroEpuré = formClient.whatsapp.replace(/[^0-9]/g, "");
     const prefixesValides = ["032", "033", "034", "037", "038"];
@@ -689,14 +713,16 @@ const validerCommande = async (e) => {
     if (numeroEpuré.length !== 10 || !prefixesValides.includes(prefixe)) {
       return alert("⚠️ Numéro WhatsApp principal invalide.\nIl doit contenir 10 chiffres et commencer par 032, 033, 034, 037 ou 038.");
     }
-// --- SÉCURITÉ : VÉRIFICATION DU MINIMUM DE COMMANDE ---
-if (formClient.type_livraison === "TANA" && minCommandes.tana > 0 && totalPanier < minCommandes.tana) {
-  return alert(`⚠️ Désolé ! La livraison est possible à partir de ${formatAr(minCommandes.tana)} Ar d'achat à Tana.`);
-}
-if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && totalPanier < minCommandes.province) {
-  return alert(`⚠️ Désolé ! L'expédition en province est possible à partir de ${formatAr(minCommandes.province)} Ar d'achat.`);
-}
-    // --- VÉRIFICATION DU NUMÉRO DE SECOURS (S'IL EST REMPLI) ---
+    
+    // --- SÉCURITÉ : VÉRIFICATION DU MINIMUM DE COMMANDE ---
+    if (formClient.type_livraison === "TANA" && minCommandes.tana > 0 && totalPanier < minCommandes.tana) {
+      return alert(`⚠️ Désolé ! La livraison est possible à partir de ${formatAr(minCommandes.tana)} Ar d'achat à Tana.`);
+    }
+    if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && totalPanier < minCommandes.province) {
+      return alert(`⚠️ Désolé ! L'expédition en province est possible à partir de ${formatAr(minCommandes.province)} Ar d'achat.`);
+    }
+    
+    // --- VÉRIFICATION DU NUMÉRO DE SECOURS ---
     if (formClient.whatsapp2) {
       const num2Epuré = formClient.whatsapp2.replace(/[^0-9]/g, "");
       const pref2 = num2Epuré.substring(0, 3);
@@ -706,36 +732,50 @@ if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && tot
     }
 
     setIsSubmitting(true);
-    const numeroUnique =
-      "CMD-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+
+    // 🔒 AXE 1 : RECALCUL SÉCURISÉ DU PANIER DEPUIS LA BDD
+    const panierSecurise = panier.map(itemPanier => {
+      const vraiProduit = produits.find(p => p.id === itemPanier.id);
+      if (!vraiProduit) return itemPanier; // Repli de sécurité si introuvable
+
+      let vraiPrix = vraiProduit.prix_vente;
+      const now = new Date();
+      if (vraiProduit.prix_promo && new Date(vraiProduit.promo_debut) <= now && new Date(vraiProduit.promo_fin) >= now) {
+        vraiPrix = vraiProduit.prix_promo;
+      }
+      return { ...itemPanier, prix_vente: vraiPrix, nom: vraiProduit.nom };
+    });
+
+    const vraiTotalPanier = panierSecurise.reduce((acc, item) => acc + Number(item.prix_vente) * item.qte, 0);
+    const vraiTotalNetAPayer = vraiTotalPanier + fraisLivraison;
+    // ----------------------------------------------------
+
+    const numeroUnique = "CMD-" + Math.random().toString(36).substr(2, 6).toUpperCase();
     const orderData = {
       numero_commande: numeroUnique,
       client_nom: formClient.nom,
       client_whatsapp: formClient.whatsapp,
       client_whatsapp2: formClient.whatsapp2,
-      quartier:
-        formClient.type_livraison === "PROVINCE"
-          ? "PROVINCE"
-          : formClient.quartier,
-          adresse_detail:
-          formClient.type_livraison === "PROVINCE"
-            ? `Ville : ${formClient.ville} | Transporteur : ${formClient.message_expedition} | Adresse : ${formClient.adresse_detail}`
-            : formClient.type_livraison === "DIGITAL"
-            ? `LIVRAISON NUMÉRIQUE via ${formClient.canal_digital} ${formClient.canal_digital === 'EMAIL' ? '('+formClient.email+')' : ''}`
-            : formClient.adresse_detail,
-        articles_json: {
-        articles: panier,
+      quartier: formClient.type_livraison === "PROVINCE" ? "PROVINCE" : formClient.quartier,
+      adresse_detail: formClient.type_livraison === "PROVINCE"
+        ? `Ville : ${formClient.ville} | Transporteur : ${formClient.message_expedition} | Adresse : ${formClient.adresse_detail}`
+        : formClient.type_livraison === "DIGITAL"
+        ? `LIVRAISON NUMÉRIQUE via ${formClient.canal_digital} ${formClient.canal_digital === 'EMAIL' ? '('+formClient.email+')' : ''}`
+        : formClient.adresse_detail,
+      articles_json: {
+        articles: panierSecurise, // 🔒 On envoie le panier vérifié
         methode_paiement: formClient.methode_paiement,
         type_livraison: formClient.type_livraison,
         ville_destination: formClient.ville,
         message_expedition: formClient.message_expedition,
       },
-      montant_total: totalPanier,
+      montant_total: vraiTotalPanier, // 🔒 On envoie le total vérifié
       frais_livraison: fraisLivraison,
       statut: "En attente",
       date_commande: new Date().toISOString(),
     };
 
+    // 1️⃣ Enregistrement dans Supabase
     const { error } = await supabase.from("commandes_web").insert([orderData]);
     if (error) {
       alert("Erreur de connexion. Veuillez réessayer.");
@@ -743,6 +783,7 @@ if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && tot
       return;
     }
 
+    // 2️⃣ Envoi au Webhook Make (RESTAURÉ COMME DEMANDÉ)
     try {
       if (MAKE_WEBHOOK_URL) {
         await fetch(MAKE_WEBHOOK_URL, {
@@ -751,16 +792,19 @@ if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && tot
           body: JSON.stringify(orderData),
         });
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log("Erreur Webhook:", err);
+    }
 
     setCommandeValidee({
       nom: formClient.nom,
-      total: totalNetAPayer,
+      total: vraiTotalNetAPayer, // 🔒
       methode: formClient.methode_paiement,
       numero: numeroUnique,
-      articles: panier,
+      articles: panierSecurise, // 🔒
       fraisLivraison: fraisLivraison,
     });
+    
     // 💾 SAUVEGARDE DANS LE TÉLÉPHONE DU CLIENT
     localStorage.setItem("hakimi_client_info", JSON.stringify({
       nom: formClient.nom,
@@ -774,24 +818,25 @@ if (formClient.type_livraison === "PROVINCE" && minCommandes.province > 0 && tot
     }));
 
     setPanier([]);
-    // On vide juste le message d'expédition, on garde tout le reste intact !
     setFormClient({ ...formClient, message_expedition: "" });
+    
     // Signal d'achat validé pour Google Analytics
     if (window.gtag && typeof window.gtag === "function") {
       window.gtag("event", "purchase", {
         transaction_id: numeroUnique,
-        value: totalNetAPayer,
+        value: vraiTotalNetAPayer,
         currency: "MGA",
         payment_type: formClient.methode_paiement
       });
     }
-// Signal d'achat validé pour le Pixel Facebook
+    // Signal d'achat validé pour le Pixel Facebook
     if (window.fbq && typeof window.fbq === "function") {
       window.fbq("track", "Purchase", {
-        value: totalNetAPayer,
+        value: vraiTotalNetAPayer,
         currency: "MGA"
       });
     }
+    
     setView("succes");
     setIsSubmitting(false);
   };

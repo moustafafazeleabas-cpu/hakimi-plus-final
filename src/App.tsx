@@ -1497,14 +1497,24 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
           <div className="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-300 flex flex-col">
             <div className="flex items-center p-4 md:p-6 border-b border-gray-100">
               <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 mx-2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-              <input
+             <input
                 ref={searchInputRef}
                 type="text"
                 placeholder="Que recherchez-vous ?"
                 className="flex-1 bg-transparent border-none outline-none text-xl md:text-3xl font-black text-gray-900 placeholder-gray-300 px-4"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { setIsSearchModalOpen(false); setView("catalogue"); window.scrollTo(0,0); } }}
+                onKeyDown={(e) => { 
+                  if (e.key === 'Enter') { 
+                    setIsSearchModalOpen(false); 
+                    setView("catalogue"); 
+                    window.scrollTo(0,0); 
+                  }
+                  if (e.key === 'Escape' || e.keyCode === 27) {
+                    setIsSearchModalOpen(false);
+                    e.target.blur(); // Force la fermeture du clavier sur mobile
+                  }
+                }}
               />
               <button onClick={() => setIsSearchModalOpen(false)} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 transition-colors">
                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -2823,28 +2833,43 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                       {/* DÉTAILS D'ADRESSE (TANA / PROVINCE / DIGITAL) */}
                       {formClient.type_livraison === "TANA" ? (
                         <div className="space-y-3">
-                          <div className="relative">
-                            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm focus-within:border-[#800020] focus-within:ring-1 focus-within:ring-[#800020] transition-all">
-                              <label className="text-[10px] font-black text-[#800020] uppercase tracking-widest block mb-1">
+                        <div className="relative">
+                            <div className={`border rounded-xl px-4 py-2 shadow-sm transition-all ${quartierSelectionne ? "bg-gray-50 border-gray-200" : "bg-white border-gray-200 focus-within:border-[#800020] focus-within:ring-1 focus-within:ring-[#800020]"}`}>
+                              <label className={`text-[10px] font-black uppercase tracking-widest block mb-1 ${quartierSelectionne ? "text-gray-500" : "text-[#800020]"}`}>
                                 Quartier *
                               </label>
-                              <input
-                                type="text"
-                                className="w-full bg-transparent border-none outline-none font-bold text-gray-900 placeholder-gray-300"
-                                placeholder="🔍 Ex: Anosizato..."
-                                required
-                                value={formClient.quartier}
-                                onChange={(e) => {
-                                  setFormClient({ ...formClient, quartier: e.target.value });
-                                  setShowQuartiersDropdown(true);
-                                }}
-                                onFocus={() => setShowQuartiersDropdown(true)}
-                                onBlur={() => setTimeout(() => setShowQuartiersDropdown(false), 200)}
-                                disabled={isSubmitting}
-                                autoComplete="off"
-                              />
+                              {quartierSelectionne ? (
+                                <div className="flex justify-between items-center w-full mt-1">
+                                  <span className="font-bold text-sm text-gray-900">{quartierSelectionne.nom}</span>
+                                  <button 
+                                    type="button" 
+                                    onClick={() => setFormClient({ ...formClient, quartier: "" })}
+                                    className="text-[10px] font-black text-[#800020] hover:underline uppercase tracking-wider"
+                                  >
+                                    Modifier
+                                  </button>
+                                </div>
+                              ) : (
+                                <input
+                                  type="text"
+                                  className="w-full bg-transparent border-none outline-none font-bold text-gray-900 placeholder-gray-300"
+                                  placeholder="Ex: Anosizato..."
+                                  required
+                                  value={formClient.quartier}
+                                  onChange={(e) => {
+                                    setFormClient({ ...formClient, quartier: e.target.value });
+                                    setShowQuartiersDropdown(true);
+                                  }}
+                                  onFocus={() => setShowQuartiersDropdown(true)}
+                                  onBlur={() => setTimeout(() => setShowQuartiersDropdown(false), 200)}
+                                  disabled={isSubmitting}
+                                  autoComplete="off"
+                                />
+                              )}
                             </div>
-                            {showQuartiersDropdown && (
+                            
+                            {/* Le Dropdown n'apparaît que si on n'a pas encore sélectionné de quartier valide */}
+                            {!quartierSelectionne && showQuartiersDropdown && (
                               <ul className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto divide-y divide-gray-100">
                                 {quartiersDb
                                   .filter((q) => q.nom.toLowerCase().includes(formClient.quartier.toLowerCase()))

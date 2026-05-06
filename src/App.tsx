@@ -128,9 +128,27 @@ export default function App() {
 
 
   useEffect(() => {
+    // 1. On met le curseur automatiquement dans la barre
     if (isSearchModalOpen && searchInputRef.current) {
       setTimeout(() => searchInputRef.current.focus(), 100);
     }
+
+    // 2. 🚀 NOUVEAU : On écoute la touche ECHAP du clavier
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" || e.keyCode === 27) {
+        setIsSearchModalOpen(false);
+      }
+    };
+
+    // Si la fenêtre est ouverte, on active l'écouteur du clavier
+    if (isSearchModalOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    // Quand on ferme la fenêtre, on nettoie l'écouteur pour ne pas ralentir le site
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isSearchModalOpen]);
   
   // --- 🚀 MOTEUR ONESIGNAL (NOTIFICATIONS PUSH) ---
@@ -1437,7 +1455,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
               <input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Que recherchez-vous aujourd'hui ?"
+                placeholder="Que recherchez-vous ?"
                 className="flex-1 bg-transparent border-none outline-none text-xl md:text-3xl font-black text-gray-900 placeholder-gray-300 px-4"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -2691,64 +2709,55 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                     </div>
 
                     <form onSubmit={validerCommande} className="space-y-4">
-                      <div>
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                      {/* CHAMP : NOM COMPLET */}
+                      <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm focus-within:border-[#800020] focus-within:ring-1 focus-within:ring-[#800020] transition-all">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
                           Nom Complet *
                         </label>
                         <input
-                          className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg font-bold text-sm text-gray-800 outline-none focus:border-[#800020] transition-colors"
+                          type="text"
+                          className="w-full bg-transparent border-none outline-none font-bold text-gray-900 placeholder-gray-300"
                           placeholder="Ex: Rabe Rakoto"
                           value={formClient.nom}
-                          onChange={(e) =>
-                            setFormClient({
-                              ...formClient,
-                              nom: e.target.value,
-                            })
-                          }
+                          onChange={(e) => setFormClient({ ...formClient, nom: e.target.value })}
                           required
                           disabled={isSubmitting}
-                    />
+                        />
                       </div>
+
+                      {/* CHAMPS : TÉLÉPHONES */}
                       <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-[10px] font-bold text-green-600 uppercase tracking-wider block mb-1 flex items-center gap-1">
+                        <div className="bg-green-50/50 border border-green-200 rounded-xl px-4 py-2 shadow-sm focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all">
+                          <label className="text-[10px] font-black text-green-600 uppercase tracking-widest block mb-1">
                             WhatsApp *
                           </label>
                           <input
                             type="tel"
-                            className="w-full p-2.5 bg-green-50 border border-green-200 text-green-800 rounded-lg font-bold text-sm outline-none placeholder-green-300 focus:border-green-500 transition-colors"
+                            className="w-full bg-transparent border-none outline-none font-bold text-gray-900 placeholder-green-300"
                             placeholder="034 00..."
                             value={formClient.whatsapp}
-                            onChange={(e) =>
-                              setFormClient({
-                                ...formClient,
-                                whatsapp: e.target.value,
-                              })
-                            }
+                            onChange={(e) => setFormClient({ ...formClient, whatsapp: e.target.value })}
                             required
                             disabled={isSubmitting}
                           />
                         </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                        <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm focus-within:border-gray-400 focus-within:ring-1 focus-within:ring-gray-400 transition-all">
+                          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
                             Tél. Secours
                           </label>
                           <input
                             type="tel"
-                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg font-bold text-sm text-gray-800 outline-none focus:border-gray-400 transition-colors"
+                            className="w-full bg-transparent border-none outline-none font-bold text-gray-900 placeholder-gray-300"
                             placeholder="Optionnel"
                             value={formClient.whatsapp2}
-                            onChange={(e) =>
-                              setFormClient({
-                                ...formClient,
-                                whatsapp2: e.target.value,
-                              })
-                            }
+                            onChange={(e) => setFormClient({ ...formClient, whatsapp2: e.target.value })}
                             disabled={isSubmitting}
                           />
                         </div>
                       </div>
-                      <div className="pt-2 border-t border-gray-100 mt-4">
+
+                      {/* SÉLECTION DE LA ZONE */}
+                      <div className="pt-2 mt-4">
                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">
                           Zone de livraison *
                         </label>
@@ -2759,30 +2768,37 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                             </button>
                           ) : (
                             <>
-                              <button type="button" onClick={() => handleShippingChange("TANA")} className={`flex-1 py-2.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all duration-300 ${formClient.type_livraison === "TANA" ? "bg-white text-gray-900 shadow-sm border border-gray-200/50" : "text-gray-400 hover:text-gray-600"}`}>Antananarivo</button>
-                              <button type="button" onClick={() => handleShippingChange("PROVINCE")} className={`flex-1 py-2.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all duration-300 ${formClient.type_livraison === "PROVINCE" ? "bg-white text-gray-900 shadow-sm border border-gray-200/50" : "text-gray-400 hover:text-gray-600"}`}>Province</button>
+                              <button type="button" onClick={() => handleShippingChange("TANA")} className={`flex-1 py-2.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all duration-300 ${formClient.type_livraison === "TANA" ? "bg-white text-[#800020] shadow-sm border border-gray-200/50" : "text-gray-400 hover:text-gray-600"}`}>Antananarivo</button>
+                              <button type="button" onClick={() => handleShippingChange("PROVINCE")} className={`flex-1 py-2.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all duration-300 ${formClient.type_livraison === "PROVINCE" ? "bg-white text-[#800020] shadow-sm border border-gray-200/50" : "text-gray-400 hover:text-gray-600"}`}>Province</button>
                             </>
                           )}
                         </div>
                       </div>
+
+                      {/* DÉTAILS D'ADRESSE (TANA / PROVINCE / DIGITAL) */}
                       {formClient.type_livraison === "TANA" ? (
                         <div className="space-y-3">
                           <div className="relative">
-                            <input
-                              type="text"
-                              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg font-bold outline-none focus:border-[#800020] transition-colors"
-                              placeholder="🔍 Taper ou choisir un quartier..."
-                              required
-                              value={formClient.quartier}
-                              onChange={(e) => {
-                                setFormClient({ ...formClient, quartier: e.target.value });
-                                setShowQuartiersDropdown(true);
-                              }}
-                              onFocus={() => setShowQuartiersDropdown(true)}
-                              onBlur={() => setTimeout(() => setShowQuartiersDropdown(false), 200)}
-                              disabled={isSubmitting}
-                              autoComplete="off"
-                            />
+                            <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm focus-within:border-[#800020] focus-within:ring-1 focus-within:ring-[#800020] transition-all">
+                              <label className="text-[10px] font-black text-[#800020] uppercase tracking-widest block mb-1">
+                                Quartier *
+                              </label>
+                              <input
+                                type="text"
+                                className="w-full bg-transparent border-none outline-none font-bold text-gray-900 placeholder-gray-300"
+                                placeholder="🔍 Ex: Anosizato..."
+                                required
+                                value={formClient.quartier}
+                                onChange={(e) => {
+                                  setFormClient({ ...formClient, quartier: e.target.value });
+                                  setShowQuartiersDropdown(true);
+                                }}
+                                onFocus={() => setShowQuartiersDropdown(true)}
+                                onBlur={() => setTimeout(() => setShowQuartiersDropdown(false), 200)}
+                                disabled={isSubmitting}
+                                autoComplete="off"
+                              />
+                            </div>
                             {showQuartiersDropdown && (
                               <ul className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto divide-y divide-gray-100">
                                 {quartiersDb
@@ -2807,37 +2823,55 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                               </ul>
                             )}
                           </div>
-                          <textarea
-                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg font-medium text-sm text-gray-800 outline-none h-14 resize-none focus:border-[#800020] transition-colors"
-                            placeholder="Précisions: Lot, portail, bâtiment..."
-                            value={formClient.adresse_detail}
-                            onChange={(e) => setFormClient({ ...formClient, adresse_detail: e.target.value })}
-                            required
-                            disabled={isSubmitting}
-                          />
+                          <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm focus-within:border-gray-400 focus-within:ring-1 focus-within:ring-gray-400 transition-all">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
+                              Complément d'adresse *
+                            </label>
+                            <textarea
+                              className="w-full bg-transparent border-none outline-none font-bold text-sm text-gray-900 placeholder-gray-300 resize-none h-10"
+                              placeholder="Ex: Lot IVK 40..., Porte 3..., Étage 2..."
+                              value={formClient.adresse_detail}
+                              onChange={(e) => setFormClient({ ...formClient, adresse_detail: e.target.value })}
+                              required
+                              disabled={isSubmitting}
+                            />
+                          </div>
                         </div>
                       ) : formClient.type_livraison === "PROVINCE" ? (
                         <div className="space-y-3">
-                          <input
-                            className="w-full p-2.5 bg-blue-50 border border-blue-200 text-blue-900 rounded-lg font-bold text-sm outline-none placeholder-blue-300 focus:border-blue-500 transition-colors"
-                            placeholder="Ville de destination *"
-                            value={formClient.ville}
-                            onChange={(e) => setFormClient({ ...formClient, ville: e.target.value })}
-                            required
-                            disabled={isSubmitting}
-                          />
-                          <textarea
-                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg font-medium text-sm text-gray-800 outline-none h-14 resize-none focus:border-blue-500 transition-colors"
-                            placeholder="Transporteur préféré, agence..."
-                            value={formClient.message_expedition}
-                            onChange={(e) => setFormClient({ ...formClient, message_expedition: e.target.value })}
-                            disabled={isSubmitting}
-                          />
+                          <div className="bg-blue-50/50 border border-blue-200 rounded-xl px-4 py-2 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                            <label className="text-[10px] font-black text-blue-800 uppercase tracking-widest block mb-1">
+                              Ville de destination *
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full bg-transparent border-none outline-none font-bold text-gray-900 placeholder-blue-300"
+                              placeholder="Ex: Fianarantsoa"
+                              value={formClient.ville}
+                              onChange={(e) => setFormClient({ ...formClient, ville: e.target.value })}
+                              required
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                          <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400 transition-all">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
+                              Transporteur & Agence
+                            </label>
+                            <textarea
+                              className="w-full bg-transparent border-none outline-none font-bold text-sm text-gray-900 placeholder-gray-300 resize-none h-10"
+                              placeholder="Ex: Cotisse, Agence Mahamasina..."
+                              value={formClient.message_expedition}
+                              onChange={(e) => setFormClient({ ...formClient, message_expedition: e.target.value })}
+                              disabled={isSubmitting}
+                            />
+                          </div>
                         </div>
                       ) : formClient.type_livraison === "DIGITAL" ? (
-                        <div className="space-y-3 bg-purple-50 p-4 rounded-xl border border-purple-100 mt-3">
-                          <label className="text-[10px] font-bold text-purple-800 uppercase block mb-1">Recevoir la commande par :</label>
-                         <div className="flex gap-3 mb-4 mt-2">
+                        <div className="space-y-3 bg-purple-50/50 p-4 rounded-xl border border-purple-100 mt-3">
+                          <label className="text-[10px] font-black text-purple-800 uppercase tracking-widest block mb-1">
+                            Recevoir la commande par :
+                          </label>
+                          <div className="flex gap-3 mb-4 mt-2">
                             <button type="button" onClick={() => setFormClient({...formClient, canal_digital: 'WHATSAPP'})} className={`flex-1 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all duration-300 border ${formClient.canal_digital === 'WHATSAPP' ? 'bg-[#25D366] text-white border-[#25D366] shadow-[0_8px_20px_rgba(37,211,102,0.25)]' : 'bg-white text-gray-500 border-gray-200 hover:border-[#25D366] hover:text-[#25D366]'}`}>
                               WhatsApp
                             </button>
@@ -2846,16 +2880,31 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                             </button>
                           </div>
                           {formClient.canal_digital === 'EMAIL' ? (
-                            <input type="email" placeholder="Votre adresse Email *" className="w-full p-3 bg-white border border-purple-200 rounded-lg outline-none font-bold text-sm text-gray-800 focus:border-purple-500" value={formClient.email} onChange={e => setFormClient({...formClient, email: e.target.value})} required disabled={isSubmitting} />
+                            <div className="bg-white border border-purple-200 rounded-xl px-4 py-2 shadow-sm focus-within:border-purple-500 focus-within:ring-1 focus-within:ring-purple-500 transition-all">
+                              <label className="text-[10px] font-black text-purple-600 uppercase tracking-widest block mb-1">
+                                Email de réception *
+                              </label>
+                              <input 
+                                type="email" 
+                                placeholder="Ex: client@gmail.com" 
+                                className="w-full bg-transparent border-none outline-none font-bold text-gray-900 placeholder-purple-200" 
+                                value={formClient.email} 
+                                onChange={e => setFormClient({...formClient, email: e.target.value})} 
+                                required 
+                                disabled={isSubmitting} 
+                              />
+                            </div>
                           ) : (
-                            <p className="text-xs font-bold text-purple-700 bg-white p-2 rounded border border-purple-100 text-center">La livraison sera envoyée sur le numéro WhatsApp renseigné en haut.</p>
+                            <p className="text-xs font-bold text-purple-700 bg-white p-3 rounded-xl border border-purple-100 text-center">La livraison sera envoyée sur le numéro WhatsApp renseigné en haut.</p>
                           )}
                         </div>
                       ) : null}
-                    <div className="pt-2 border-t border-gray-100 mt-4">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">
-                        Moyen de Paiement *
-                      </label>
+
+                      {/* CHOIX DU PAIEMENT */}
+                      <div className="pt-2 border-t border-gray-100 mt-4">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-3">
+                          Moyen de Paiement *
+                        </label>
                         <div className="flex gap-3">
                           {formClient.type_livraison === "TANA" && (
                             <button
@@ -2890,12 +2939,13 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                                 : "bg-white text-gray-500 border-gray-200 hover:border-[#ff6600] hover:text-[#ff6600] hover:bg-[#ff6600]/5"
                             }`}
                           >
-                            Orange
+                            Orange Money
                           </button>
                         </div>
                       </div>
-                     {/* VÉRIFICATION VISUELLE DU MINIMUM DE COMMANDE */}
-                     {(() => {
+                      
+                      {/* VÉRIFICATION VISUELLE DU MINIMUM DE COMMANDE */}
+                      {(() => {
                         const minRequis = formClient.type_livraison === "TANA" ? minCommandes.tana : minCommandes.province;
                         const isMinAtteint = totalPanier >= minRequis;
 
@@ -2909,10 +2959,10 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                             <button
                               type="submit"
                               disabled={isSubmitting || (minRequis > 0 && !isMinAtteint)}
-                              className={`w-full p-3.5 rounded-lg font-black uppercase text-sm shadow-md transition-colors mt-4 flex justify-center items-center gap-2 ${
+                              className={`w-full p-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-md transition-all duration-300 mt-6 flex justify-center items-center gap-2 ${
                                 minRequis > 0 && !isMinAtteint 
-                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed" 
-                                  : "bg-[#800020] text-white hover:bg-gray-900"
+                                  ? "bg-gray-200 text-gray-400 cursor-not-allowed" 
+                                  : "bg-[#800020] text-white hover:bg-black"
                               }`}
                             >
                               {isSubmitting

@@ -181,20 +181,25 @@ useEffect(() => {
   const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
   setIsIOS(isIosDevice);
 
-  // 2. Vérifier si l'app est déjà installée
+  // 🚀 NOUVEAU : On lit la mémoire d'Android/Chrome
+  const dejaInstalle = localStorage.getItem("hakimi_pwa_installed") === "true";
+
+  // 2. Vérifier si l'app est déjà installée ou tourne en plein écran
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  if (isStandalone) {
+  if (isStandalone || dejaInstalle) {
     setIsInstalled(true);
   } else if (isIosDevice) {
-    // Si c'est un iPhone non installé, on rend le bouton cliquable
     setIsInstallable(true);
   }
 
-  // 3. Logique Android normale
+  // 3. Logique ANDROID normale
   const handleBeforeInstallPrompt = (e) => {
     e.preventDefault();
-    setDeferredPrompt(e);
-    setIsInstallable(true);
+    // Si la mémoire dit qu'il l'a déjà, on bloque l'apparition du bouton
+    if (!dejaInstalle) {
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    }
   };
 
   const handleAppInstalled = () => {
@@ -202,6 +207,7 @@ useEffect(() => {
     setIsInstalled(true);
     setDeferredPrompt(null);
     setShowIOSPrompt(false);
+    localStorage.setItem("hakimi_pwa_installed", "true"); // On tatoue le navigateur
   };
 
   window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -215,18 +221,20 @@ useEffect(() => {
 
 const handleInstallClick = async () => {
   if (isIOS) {
-    // Sur Apple, on ouvre notre joli tutoriel
     setShowIOSPrompt(true);
     return;
   }
   if (!deferredPrompt) return;
-  // Sur Android, on lance le vrai menu d'installation
+  
+  // Sur Android, on lance le vrai menu d'installation Chrome
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === 'accepted') setIsInstallable(false);
+  if (outcome === 'accepted') {
+    setIsInstallable(false);
+    localStorage.setItem("hakimi_pwa_installed", "true"); // On tatoue le navigateur après acceptation
+  }
   setDeferredPrompt(null);
 };
-// --------------------------------------------------
   // --------------------------------------------------
 
   const [view, setView] = useState(() => {

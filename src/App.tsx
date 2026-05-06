@@ -114,21 +114,6 @@ function ChronoPromo({ dateFin }) {
 export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMiniCart, setShowMiniCart] = useState(false);
-  // 🚀 ASTUCE MOBILE : Cacher le clavier quand on fait défiler la page
-  useEffect(() => {
-    const handleScroll = () => {
-      // Si un champ de texte est actif (clavier ouvert) et qu'on scrolle, on le désactive
-      if (document.activeElement && document.activeElement.tagName === 'INPUT') {
-        document.activeElement.blur();
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('touchmove', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('touchmove', handleScroll);
-    };
-  }, []);
 
   // --- NOUVEAU : MOTEURS POUR RECHERCHE ET STICKY CART ---
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -181,10 +166,10 @@ useEffect(() => {
   const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
   setIsIOS(isIosDevice);
 
-  // 🚀 NOUVEAU : On lit la mémoire d'Android/Chrome
+  // On lit la mémoire d'Android/Chrome
   const dejaInstalle = localStorage.getItem("hakimi_pwa_installed") === "true";
 
-  // 2. Vérifier si l'app est déjà installée ou tourne en plein écran
+  // 2. Vérifier si l'app tourne en plein écran ou est en mémoire
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   if (isStandalone || dejaInstalle) {
     setIsInstalled(true);
@@ -195,11 +180,13 @@ useEffect(() => {
   // 3. Logique ANDROID normale
   const handleBeforeInstallPrompt = (e) => {
     e.preventDefault();
-    // Si la mémoire dit qu'il l'a déjà, on bloque l'apparition du bouton
-    if (!dejaInstalle) {
-      setDeferredPrompt(e);
-      setIsInstallable(true);
-    }
+    // 🚀 CORRECTION : Si Chrome envoie ce signal, c'est la preuve que l'app N'EST PAS installée.
+    // S'il l'a désinstallée, on efface la mémoire pour faire revenir le bouton !
+    localStorage.removeItem("hakimi_pwa_installed");
+    setIsInstalled(false);
+    
+    setDeferredPrompt(e);
+    setIsInstallable(true);
   };
 
   const handleAppInstalled = () => {
@@ -207,7 +194,7 @@ useEffect(() => {
     setIsInstalled(true);
     setDeferredPrompt(null);
     setShowIOSPrompt(false);
-    localStorage.setItem("hakimi_pwa_installed", "true"); // On tatoue le navigateur
+    localStorage.setItem("hakimi_pwa_installed", "true"); // On tatoue après installation
   };
 
   window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -231,11 +218,12 @@ const handleInstallClick = async () => {
   const { outcome } = await deferredPrompt.userChoice;
   if (outcome === 'accepted') {
     setIsInstallable(false);
-    localStorage.setItem("hakimi_pwa_installed", "true"); // On tatoue le navigateur après acceptation
+    setIsInstalled(true);
+    localStorage.setItem("hakimi_pwa_installed", "true");
   }
   setDeferredPrompt(null);
 };
-  // --------------------------------------------------
+// --------------------------------------------------
 
   const [view, setView] = useState(() => {
     const path = window.location.pathname.replace(/^\/+/, "");
@@ -1424,11 +1412,13 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
               placeholder="Rechercher un produit..."
               className="bg-transparent border-none outline-none text-sm font-bold w-full text-gray-800 placeholder-gray-400"
               value={searchQuery}
-              onFocus={() => {
-                // MAGIE : Dès qu'on touche la barre, on passe sur le catalogue (si on n'y est pas déjà) !
+           onFocus={() => {
+                // MAGIE FLUIDE : On laisse le clavier s'ouvrir (300ms) avant de charger le lourd catalogue
                 if (!view.startsWith("catalogue") && !view.startsWith("informatique")) {
-                  setView("catalogue");
-                  window.scrollTo(0, 0);
+                  setTimeout(() => {
+                    setView("catalogue");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }, 300);
                 }
               }}
               onChange={(e) => setSearchQuery(e.target.value)}

@@ -1393,7 +1393,33 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
           </div>
         </div>
 
-       
+       {/* 🚀 LA FAMEUSE BARRE DE RECHERCHE MOBILE (RESTAURÉE ET AMÉLIORÉE) */}
+        <div className="lg:hidden px-4 pb-3 max-w-7xl mx-auto w-full animate-in fade-in" ref={searchContainerRefMobile}>
+          <div className="flex items-center rounded-2xl px-4 py-2.5 shadow-sm transition-colors duration-500 bg-gray-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-[#800020] border border-gray-100">
+            <input
+              type="text"
+              placeholder="Rechercher un produit..."
+              className="bg-transparent border-none outline-none text-sm font-bold w-full text-gray-800 placeholder-gray-400"
+              value={searchQuery}
+              onFocus={() => {
+                // MAGIE : Dès qu'on touche la barre, on passe sur le catalogue (si on n'y est pas déjà) !
+                if (!view.startsWith("catalogue") && !view.startsWith("informatique")) {
+                  setView("catalogue");
+                  window.scrollTo(0, 0);
+                }
+              }}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => { 
+                if (e.key === "Enter" || e.key === "Escape" || e.keyCode === 27) { 
+                  e.target.blur(); // 📱 Force la fermeture du clavier du téléphone
+                }
+              }}
+            />
+            <button onClick={() => { if (searchQuery && !view.startsWith("catalogue")) { setView("catalogue"); window.scrollTo(0,0); } }} className="ml-2 text-gray-400 hover:text-[#800020]">
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </button>
+          </div>
+        </div>
       </header>
       {/* MENU MOBILE MODERNE (Sleek Drawer) */}
       {isMobileMenuOpen && (
@@ -1490,7 +1516,33 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
           </div>
         </div>
       )}
-
+{/* 📱 BARRE DE RECHERCHE MOBILE (AVEC AFFICHAGE DIRECT DU CATALOGUE) */}
+      <div className="lg:hidden px-4 pb-4 max-w-7xl mx-auto w-full animate-in fade-in z-40 bg-gray-50">
+        <div className="flex items-center rounded-2xl px-4 py-2.5 shadow-sm transition-colors duration-500 bg-white focus-within:ring-2 focus-within:ring-[#800020] border border-gray-200">
+          <input
+            type="text"
+            placeholder="Rechercher un produit..."
+            className="bg-transparent border-none outline-none text-sm font-bold w-full text-gray-800 placeholder-gray-400"
+            value={searchQuery}
+            onFocus={() => {
+              // Dès que le doigt touche la barre, on bascule sur le catalogue
+              if (!view.startsWith("catalogue") && !view.startsWith("informatique")) {
+                setView("catalogue");
+                window.scrollTo(0, 0);
+              }
+            }}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => { 
+              if (e.key === "Enter" || e.key === "Escape" || e.keyCode === 27) { 
+                e.target.blur(); // Ferme le clavier du téléphone
+              }
+            }}
+          />
+          <button onClick={() => { if (searchQuery && !view.startsWith("catalogue")) { setView("catalogue"); window.scrollTo(0,0); } }} className="ml-2 text-gray-400 hover:text-[#800020] transition-colors">
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </button>
+        </div>
+      </div>
       <main className="flex-grow pb-12">
         {/* --- MODAL DE RECHERCHE PLEINE PAGE --- */}
         {isSearchModalOpen && (

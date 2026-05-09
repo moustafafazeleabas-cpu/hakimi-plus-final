@@ -303,6 +303,23 @@ const [articleActuel, setArticleActuel] = useState(() => {
      }
    }
  }, [view, produits]);
+ // 🚀 NOUVEAU : RÉCUPÉRATION DE L'ARTICLE DEPUIS L'URL (POUR LES LIENS FACEBOOK)
+  useEffect(() => {
+    // Si l'URL commence par "article/" et que les rubriques sont chargées
+    if (view.startsWith("article/") && rubriques.length > 0) {
+      // 1. On extrait le nom de l'article de l'URL (ex: "les-secrets-du-fameux...")
+      const articleSlug = safeDecode(view.split("article/")[1]);
+      
+      // 2. On cherche dans la base l'article qui correspond à ce nom
+      const articleTrouve = rubriques.find((r) => genererSlug(r.titre) === articleSlug);
+      
+      if (articleTrouve) {
+        setArticleActuel(articleTrouve); // On l'affiche !
+      } else {
+        setView("accueil"); // Sécurité : si le lien est faux, retour à l'accueil
+      }
+    }
+  }, [view, rubriques]);
 
 const [menusWeb, setMenusWeb] = useState([]);
   

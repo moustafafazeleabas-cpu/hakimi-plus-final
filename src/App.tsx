@@ -1901,7 +1901,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                               if (e.ctrlKey || e.metaKey || e.button === 1) return;
                               e.preventDefault();
                               setArticleActuel(rubrique);
-                              setView("article");
+                              setView(`article/${genererSlug(rubrique.titre)}`);
                               window.scrollTo({ top: 0, behavior: "smooth" });
                             }}
                             className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-lg transition-all cursor-pointer block group"
@@ -2492,12 +2492,12 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
           href={`/produit/${genererSlug(p.nom)}`}
           className="bg-white p-3 rounded-2xl border border-gray-100 flex flex-col justify-between hover:shadow-lg transition-all cursor-pointer group block"
           onClick={(e) => {
-                              if (e.ctrlKey || e.metaKey || e.button === 1) return;
-                              e.preventDefault();
-                              setArticleActuel(rubrique);
-                              setView(`article/${genererSlug(rubrique.titre)}`);
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
+            if (e.ctrlKey || e.metaKey || e.button === 1) return;
+            e.preventDefault();
+            setProduitSelectionne(p);
+            setView("produit/" + genererSlug(p.nom));
+            window.scrollTo({ top: 0, behavior: "smooth" }); 
+          }}
         >
                         <div className="relative overflow-hidden aspect-square flex items-center justify-center bg-gray-50 rounded-xl mb-3">
                           {p.image_url ? (

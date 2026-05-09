@@ -2281,9 +2281,66 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                 <h1 className="text-3xl md:text-4xl font-black text-gray-800 mb-6 leading-tight">
                   {articleActuel.titre}
                 </h1>
-                <div className="text-gray-600 leading-relaxed space-y-4 whitespace-pre-wrap">
+               <div className="text-gray-600 leading-relaxed space-y-4 whitespace-pre-wrap">
                   {articleActuel.contenu}
                 </div>
+
+                {/* 🚀 NOUVEAU : BOUTON DE PARTAGE NATIF POUR ARTICLE */}
+                <div className="mt-12 border-t border-gray-100 pt-8 flex justify-center md:justify-start">
+                  <button
+                    onClick={async () => {
+                      const urlPartage = window.location.href;
+                      // On récupère le début de la description (ou du contenu) pour le texte de partage
+                      const descriptionCourte = articleActuel.description 
+                        ? articleActuel.description 
+                        : articleActuel.contenu.substring(0, 80) + "...";
+                      
+                      const textePartage = `Découvrez cet article sur Hakimi Plus : ${articleActuel.titre}\n\n"${descriptionCourte}"`;
+                      
+                      if (navigator.share) {
+                        try {
+                          const shareData = {
+                            title: 'Hakimi Plus - ' + articleActuel.titre,
+                            text: textePartage,
+                            url: urlPartage,
+                          };
+
+                          // 📸 MAGIE : On joint l'image pour les Stories WhatsApp / FB
+                          if (articleActuel.image_url) {
+                            try {
+                              const response = await fetch(articleActuel.image_url);
+                              const blob = await response.blob();
+                              const file = new File([blob], "article.jpg", { type: blob.type });
+                              
+                              if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                                shareData.files = [file];
+                              }
+                            } catch (imgErr) {
+                              console.log("Impossible de joindre l'image, partage texte activé.", imgErr);
+                            }
+                          }
+
+                          // Ouvre le menu natif du téléphone (Messenger, WhatsApp, etc.)
+                          await navigator.share(shareData);
+                        } catch (err) {
+                          console.log("Partage annulé ou échoué", err);
+                        }
+                      } else {
+                        // Secours pour les PC ou vieux navigateurs
+                        navigator.clipboard.writeText(urlPartage);
+                        alert("Lien de l'article copié dans le presse-papier !");
+                      }
+                    }}
+                    className="w-full md:w-auto bg-[#800020] hover:bg-black text-white px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-3"
+                  >
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                    </svg>
+                    Partager cet article
+                  </button>
+                </div>
+                {/* ----------------------------------------------- */}
+
               </div>
             </article>
           </div>

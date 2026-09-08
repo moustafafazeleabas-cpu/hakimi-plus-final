@@ -469,7 +469,7 @@ useEffect(() => {
     sessionStorage.setItem("hakimi_wa_visible", JSON.stringify(showWhatsApp));
   }, [showWhatsApp]);
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchData = async () => {
       setIsLoadingProducts(true);
       const { data: prods } = await supabase
@@ -480,7 +480,24 @@ useEffect(() => {
       setProduits(prods || []);
       setIsLoadingProducts(false);
     };
+    
     fetchData();
+
+    // 🚀 NOUVEAU : On écoute les modifications en direct depuis l'ERP !
+    const realtimeSubscription = supabase
+      .channel('public:produits')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'produits' }, () => {
+        const fetchUpdates = async () => {
+          const { data: prods } = await supabase.from("produits").select("*").eq("afficher_web", true).order("nom");
+          setProduits(prods || []);
+        };
+        fetchUpdates();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(realtimeSubscription);
+    };
   }, []);
 
   useEffect(() => {
@@ -1762,11 +1779,18 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                                   </p>
                                 )}
                               </div>
-                              {Number(p.stock_actuel) <= 0 &&
-                              !p.sur_commande ? (
-                                <div className="w-full bg-gray-100 text-gray-400 py-2.5 rounded-xl font-black text-[10px] uppercase text-center border border-gray-200">
-                                  Rupture
-                                </div>
+                             {Number(p.stock_actuel) <= 0 && !p.sur_commande ? (
+                        <div className="flex flex-col gap-1 mt-1">
+                          <div className="w-full bg-gray-100 text-gray-400 py-2.5 rounded-xl font-black text-[10px] uppercase text-center border border-gray-200">
+                            Rupture
+                          </div>
+                          {p.texte_rupture && (
+                            <span className="text-[9px] font-bold text-blue-600 text-center leading-tight">
+                              {p.texte_rupture}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
                               ) : (
                                 <button
                                   onClick={() => addToCart(p)}
@@ -2447,10 +2471,16 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                       </p>
                     </div>
                   )}
-                  {Number(produitSelectionne.stock_actuel) <= 0 &&
-                  !produitSelectionne.sur_commande ? (
-                    <div className="w-full bg-gray-200 text-gray-600 py-4 rounded-xl font-black text-sm uppercase text-center border border-gray-300">
-                      {produitSelectionne.texte_rupture || "Rupture de stock"}
+                  {Number(produitSelectionne.stock_actuel) <= 0 && !produitSelectionne.sur_commande ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="w-full bg-gray-200 text-gray-600 py-4 rounded-xl font-black text-sm uppercase text-center border border-gray-300">
+                        Rupture de stock
+                      </div>
+                      {produitSelectionne.texte_rupture && (
+                        <span className="text-xs font-bold text-blue-600 text-center">
+                          {produitSelectionne.texte_rupture}
+                        </span>
+                      )}
                     </div>
                   ) : (
                    <button

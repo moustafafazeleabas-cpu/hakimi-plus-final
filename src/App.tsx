@@ -1790,7 +1790,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                             </span>
                           )}
                         </div>
-                      ) : (
+                      
                               ) : (
                                 <button
                                   onClick={() => addToCart(p)}

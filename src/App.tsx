@@ -3645,7 +3645,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
           </div>
         </div>
         <div className="border-t border-gray-800 pt-8 text-center text-xs text-gray-500 font-medium tracking-wide">
-          &copy; {new Date().getFullYear()} Hakimi Plus. Tous droits réservés.
+          &copy; {new Date().getFullYear()} Hakimi Plus. Tous droits réservés. Version 1.2
         </div>
       </footer>
       {/* --- 🍎 INSTRUCTIONS D'INSTALLATION POUR IPHONE --- */}

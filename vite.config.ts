@@ -6,9 +6,12 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: "autoUpdate",
+     registerType: "autoUpdate",
       devOptions: {
         enabled: false,
+      },
+      workbox: {
+        navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.txt$/],
       },
       manifest: {
         name: "Hakimi Plus",

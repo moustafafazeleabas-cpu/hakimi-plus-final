@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { registerSW } from "virtual:pwa-register";
 import { createClient } from "@supabase/supabase-js";
 import html2pdf from "html2pdf.js";
 import { Helmet, HelmetProvider } from "react-helmet-async"; // 
@@ -205,9 +206,53 @@ const handleInstallClick = async () => {
     setIsInstallable(false);
     setIsInstalled(true);
   }
-  setDeferredPrompt(null);
+ setDeferredPrompt(null);
 };
 // --------------------------------------------------
+
+// 🔄 VÉRIFICATION PÉRIODIQUE ET RECHARGEMENT AUTO DES MISES À JOUR PWA
+useEffect(() => {
+  if (!("serviceWorker" in navigator)) return;
+
+  let refreshing = false;
+
+  const handleControllerChange = () => {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  };
+
+  navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange);
+
+  const updateSW = registerSW({
+    immediate: true,
+    onRegisteredSW(_swUrl, registration) {
+      if (!registration) return;
+
+      const interval = window.setInterval(() => {
+        registration.update();
+      }, 30 * 60 * 1000);
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === "visible") {
+          registration.update();
+        }
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
+      return () => {
+        window.clearInterval(interval);
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    },
+  });
+
+  return () => {
+    navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
+    void updateSW;
+  };
+}, []);
 
 const [view, setView] = useState(() => {
     const path = window.location.pathname.replace(/^\/+/, "");

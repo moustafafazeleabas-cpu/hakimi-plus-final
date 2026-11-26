@@ -1768,14 +1768,9 @@ const canonicalUrl = `https://hakimiplus.com${view === "accueil" ? "/" : "/" + v
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 mt-12">
-                  <div className="text-center mb-12">
-                    <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
-                      Hakimi Plus — Votre boutique en ligne à Antananarivo & Madagascar
-                    </h1>
-                    <p className="text-xs md:text-sm text-gray-500 font-medium mt-2">
-                      Épicerie, produits frais, surgelés et informatique avec livraison rapide à Tana et expédition en province.
-                    </p>
-                  </div>
+                 <h1 className="sr-only">
+                    Hakimi Plus — Boutique en ligne, épicerie, produits frais, surgelés et informatique à Antananarivo et Madagascar
+                  </h1>
                   {produitsEnValeur.length > 0 && (
                     <div className="mb-16">
                       <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">

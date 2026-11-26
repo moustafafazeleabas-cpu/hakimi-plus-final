@@ -10,7 +10,8 @@ export default defineConfig({
       devOptions: {
         enabled: false,
       },
-      workbox: {
+     workbox: {
+        cleanupOutdatedCaches: true,
         navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.txt$/],
       },
       manifest: {

@@ -1378,8 +1378,6 @@ const canonicalUrl = `https://hakimiplus.com${view === "accueil" ? "/" : "/" + v
         <script type="application/ld+json">{JSON.stringify(schemaProduct)}</script>
       )}
     </Helmet>
-      <link rel="icon" type="image/webp" href={LOGO_URL} />
-    </Helmet>
     <div className="min-h-screen font-sans flex flex-col bg-gray-50 text-gray-800 transition-colors duration-500">
       {rideauOuverture}
       {/* HEADER PREMIUM (Retour du Rouge Hakimi) */}

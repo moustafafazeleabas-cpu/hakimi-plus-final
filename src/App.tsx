@@ -209,21 +209,28 @@ const handleInstallClick = async () => {
 };
 // --------------------------------------------------
 
-  const [view, setView] = useState(() => {
+const [view, setView] = useState(() => {
     const path = window.location.pathname.replace(/^\/+/, "");
-    return decodeURIComponent(path) || "accueil";
+    const decoded = safeDecode(path);
+    return !decoded || decoded === "accueil" ? "accueil" : decoded;
   });
 
+  const navigate = (e, targetView) => {
+    if (e && (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1)) return;
+    if (e) e.preventDefault();
+    setView(targetView);
+  };
+
   useEffect(() => {
-    const currentPathDecoded = decodeURIComponent(
+    const currentPathDecoded = safeDecode(
       window.location.pathname.replace(/^\/+/, "")
     );
-    if (currentPathDecoded !== view) {
-      const encodedView = view
-        .split("/")
-        .map((part) => encodeURIComponent(part))
-        .join("/");
-      window.history.pushState(null, "", `/${encodedView}`);
+    const targetPath = view === "accueil" ? "" : view;
+    if (currentPathDecoded !== targetPath) {
+      const encodedView = targetPath
+        ? "/" + targetPath.split("/").map((part) => encodeURIComponent(part)).join("/")
+        : "/";
+      window.history.pushState(null, "", encodedView);
     }
     window.scrollTo(0, 0);
   }, [view]);
@@ -360,7 +367,7 @@ const [menusWeb, setMenusWeb] = useState([]);
     } else if (view === "accueil") {
       currentTitle = "Hakimi Plus - Boutique en ligne à Tananarive";
     }
-    document.title = currentTitle;
+  
 
     // 2. Envoi du signal au Pixel Facebook
     if (window.fbq && typeof window.fbq === "function") {
@@ -1226,7 +1233,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
 // ======================================================================
   // 🎭 EFFET D'OUVERTURE CINÉMATOGRAPHIQUE (TAPE À L'ŒIL)
   // ======================================================================
-  const rideauOuverture = !removeCurtain && (
+  const rideauOuverture = isInstalled && !removeCurtain && (
     <div className="fixed inset-0 z-[99999] flex">
       {/* ⬅️ Rideau Gauche */}
       <div className={`w-1/2 h-full bg-white relative overflow-hidden transition-transform duration-1000 delay-100 ease-[cubic-bezier(0.25,1,0.5,1)] ${curtainOpen ? '-translate-x-full' : 'translate-x-0'} shadow-[10px_0_30px_rgba(0,0,0,0.1)] z-20`}>
@@ -1285,10 +1292,92 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
   }
 
 
+const canonicalUrl = `https://hakimiplus.com${view === "accueil" ? "/" : "/" + view}`;
+
+  let seoTitle = "Hakimi Plus | Boutique en ligne à Antananarivo, Madagascar";
+  let seoDesc = "Commandez en ligne chez Hakimi Plus : épicerie, produits frais, surgelés, informatique et services. Livraison rapide à Antananarivo et expédition en province à Madagascar.";
+  let seoImage = LOGO_URL;
+
+  if (view.startsWith("produit/") && produitSelectionne) {
+    seoTitle = `${produitSelectionne.nom} | Hakimi Plus Madagascar`;
+    seoDesc = produitSelectionne.description || `Achetez ${produitSelectionne.nom} à ${formatAr(produitSelectionne.prix_vente)} Ar chez Hakimi Plus. Livraison rapide à Antananarivo et province.`;
+    if (produitSelectionne.image_url) seoImage = produitSelectionne.image_url;
+  } else if (view.startsWith("catalogue")) {
+    seoTitle = menuActuel
+      ? `${menuActuel}${sousCatActuelle !== "TOUS LES PRODUITS" ? ` - ${sousCatActuelle}` : ""} | Hakimi Plus`
+      : "Boutique en ligne & Catalogue | Hakimi Plus Madagascar";
+    seoDesc = `Découvrez notre sélection ${menuActuel || "d'épicerie et produits du quotidien"} chez Hakimi Plus. Livraison à Tana et provinces.`;
+  } else if (view.startsWith("informatique")) {
+    seoTitle = menuActuel ? `${menuActuel} | Informatique Hakimi Plus` : "Informatique & Services | Hakimi Plus Madagascar";
+    seoDesc = "Matériel informatique, accessoires et services numériques chez Hakimi Plus à Antananarivo.";
+  } else if (view === "livraison") {
+    seoTitle = "Livraison à Antananarivo et Provinces | Hakimi Plus";
+    seoDesc = "Tarifs, zones et délais de livraison Hakimi Plus à Antananarivo et expéditions partout à Madagascar.";
+  } else if (view === "conditions") {
+    seoTitle = "Conditions Générales de Vente | Hakimi Plus";
+    seoDesc = "Consultez les conditions générales de vente, pré-commande et livraison de Hakimi Plus.";
+  } else if (view.startsWith("article") && articleActuel) {
+    seoTitle = `${articleActuel.titre} | Blog Hakimi Plus`;
+    seoDesc = articleActuel.description || (articleActuel.contenu ? articleActuel.contenu.slice(0, 155) : seoDesc);
+    if (articleActuel.image_url) seoImage = articleActuel.image_url;
+  }
+
+  const schemaLocalBusiness = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "name": "Hakimi Plus",
+    "url": "https://hakimiplus.com/",
+    "logo": LOGO_URL,
+    "telephone": "+261348697298",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Anosizato Atsinanana",
+      "addressLocality": "Antananarivo",
+      "addressCountry": "MG"
+    }
+  };
+
+  const schemaProduct = view.startsWith("produit/") && produitSelectionne ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": produitSelectionne.nom,
+    "image": produitSelectionne.image_url ? [produitSelectionne.image_url] : [LOGO_URL],
+    "description": seoDesc,
+    "offers": {
+      "@type": "Offer",
+      "url": canonicalUrl,
+      "priceCurrency": "MGA",
+      "price": Number(
+        produitSelectionne.prix_promo &&
+        new Date(produitSelectionne.promo_debut) <= new Date() &&
+        new Date(produitSelectionne.promo_fin) >= new Date()
+          ? produitSelectionne.prix_promo
+          : produitSelectionne.prix_vente
+      ),
+      "availability": Number(produitSelectionne.stock_actuel) > 0 || produitSelectionne.sur_commande
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock"
+    }
+  } : null;
+
   return (
     <HelmetProvider>
-    {/* 🚀 CORRECTION FAVICON : Force l'icône sur toutes les pages */}
     <Helmet>
+      <html lang="fr" />
+      <title>{seoTitle}</title>
+      <meta name="description" content={seoDesc} />
+      <link rel="icon" type="image/webp" href={LOGO_URL} />
+      <link rel="canonical" href={canonicalUrl} />
+      <meta property="og:type" content={view.startsWith("produit/") ? "product" : "website"} />
+      <meta property="og:title" content={seoTitle} />
+      <meta property="og:description" content={seoDesc} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:image" content={seoImage} />
+      <script type="application/ld+json">{JSON.stringify(schemaLocalBusiness)}</script>
+      {schemaProduct && (
+        <script type="application/ld+json">{JSON.stringify(schemaProduct)}</script>
+      )}
+    </Helmet>
       <link rel="icon" type="image/webp" href={LOGO_URL} />
     </Helmet>
     <div className="min-h-screen font-sans flex flex-col bg-gray-50 text-gray-800 transition-colors duration-500">
@@ -1324,7 +1413,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center justify-center gap-8 lg:gap-10 flex-1">
+         <nav className="hidden md:flex items-center justify-center gap-8 lg:gap-10 flex-1">
             {[
               { id: "accueil", label: "Accueil" },
               { id: "catalogue", label: "Boutique" },
@@ -1332,16 +1421,17 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
               { id: "conditions", label: "Conditions" },
               { id: "informatique", label: "Informatique" },
             ].map((m) => (
-              <button
+              <a
                 key={m.id}
-                onClick={() => setView(m.id)}
+                href={m.id === "accueil" ? "/" : `/${m.id}`}
+                onClick={(e) => navigate(e, m.id)}
                 className={`relative text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-300 py-2 ${
                   view.startsWith(m.id) ? "text-[#800020]" : "text-gray-500 hover:text-[#800020]"
                 }`}
               >
                 {m.label}
                 <span className={`absolute bottom-0 left-0 w-full h-[2px] bg-[#800020] transition-transform duration-300 origin-left ${view.startsWith(m.id) ? "scale-x-100" : "scale-x-0"}`}></span>
-              </button>
+              </a>
             ))}
           </nav>
 
@@ -1631,7 +1721,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                   ))}
                   <button
                     onClick={prevSlide}
-                    onClick={prevSlide}
+              
                     className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/90 text-[#800020] rounded-full flex items-center justify-center shadow-lg transition-all z-20 hover:scale-110 opacity-90 md:opacity-0 md:group-hover:opacity-100"
                   >
                     <svg
@@ -1680,6 +1770,14 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 mt-12">
+                  <div className="text-center mb-12">
+                    <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+                      Hakimi Plus — Votre boutique en ligne à Antananarivo & Madagascar
+                    </h1>
+                    <p className="text-xs md:text-sm text-gray-500 font-medium mt-2">
+                      Épicerie, produits frais, surgelés et informatique avec livraison rapide à Tana et expédition en province.
+                    </p>
+                  </div>
                   {produitsEnValeur.length > 0 && (
                     <div className="mb-16">
                       <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
@@ -1933,7 +2031,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                        {rubriques.map((rubrique, idx) => (
                           <a
                             key={idx}
-                            href="/article"
+                            href={`/article/${genererSlug(rubrique.titre)}`}
                             onMouseDown={() => {
                               // On sauvegarde l'article AVANT que le menu clic droit n'apparaisse
                               localStorage.setItem("hakimi_article", JSON.stringify(rubrique));
@@ -1982,13 +2080,14 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                     </div>
                   )}
 
-                  <div className="text-center mt-16 mb-8">
-                    <button
-                      onClick={() => setView("catalogue")}
-                      className="bg-gray-900 text-white px-10 py-4 rounded-xl font-bold tracking-widest uppercase shadow-lg hover:bg-black transition text-xs"
+                 <div className="text-center mt-16 mb-8">
+                    <a
+                      href="/catalogue"
+                      onClick={(e) => navigate(e, "catalogue")}
+                      className="inline-block bg-gray-900 text-white px-10 py-4 rounded-xl font-bold tracking-widest uppercase shadow-lg hover:bg-black transition text-xs"
                     >
                       Parcourir le catalogue
-                    </button>
+                    </a>
                   </div>
                 </div>
               </>
@@ -2004,15 +2103,20 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
             {/* TITRE ÉPURÉ */}
             <div className="flex items-center gap-3 mb-6">
               <span className="w-1.5 h-6 bg-gray-900 rounded-full inline-block shrink-0"></span>
-              <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-                {menuActuel || "Notre Catalogue"}
-              </h2>
+              <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+                {menuActuel
+                  ? `${menuActuel}${sousCatActuelle !== "TOUS LES PRODUITS" ? ` — ${sousCatActuelle}` : ""}`
+                  : view.startsWith("informatique")
+                  ? "Informatique & Services"
+                  : "Notre Catalogue"}
+              </h1>
             </div>
 
           {/* CATÉGORIES PRINCIPALES (Séparées par univers) */}
           <div className="flex overflow-x-auto gap-3 mb-4 pb-2 no-scrollbar" style={{ scrollSnapType: "x mandatory" }}>
-              <button
-                onClick={() => setView(view.startsWith("informatique") ? "informatique" : "catalogue")}
+              <a
+                href={`/${view.startsWith("informatique") ? "informatique" : "catalogue"}`}
+                onClick={(e) => navigate(e, view.startsWith("informatique") ? "informatique" : "catalogue")}
                 className={`whitespace-nowrap shrink-0 snap-start px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
                   menuActuel === ""
                     ? "bg-gray-900 text-white shadow-md"
@@ -2020,23 +2124,24 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                 }`}
               >
                 Tous
-              </button>
+              </a>
               {menusWeb
                 .filter((menu) => {
                   const nom = (menu.PARENT || menu.parent).toUpperCase();
                   const isTech = nom === "INFORMATIQUE" || nom === "SERVICES";
-                  // On cache l'informatique de la boutique, et la boutique de l'informatique
                   return view.startsWith("informatique") ? isTech : !isTech;
                 })
                 .map((menu, idx) => {
                   const nomMenu = menu.PARENT || menu.parent;
                   const isSurCommande = nomMenu.toUpperCase() === "SUR COMMANDE";
                   const prefixeBase = view.startsWith("informatique") ? "informatique" : "catalogue";
+                  const targetPath = `${prefixeBase}/${genererSlug(nomMenu)}`;
                   
                   return (
-                    <button
+                    <a
                       key={idx}
-                      onClick={() => setView(`${prefixeBase}/` + genererSlug(nomMenu))}
+                      href={`/${targetPath}`}
+                      onClick={(e) => navigate(e, targetPath)}
                       className={`whitespace-nowrap shrink-0 snap-start px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
                         menuActuel === nomMenu
                           ? (isSurCommande ? "bg-[#ea580c] text-white shadow-md border-transparent" : "bg-gray-900 text-white shadow-md border-transparent")
@@ -2044,7 +2149,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                       }`}
                     >
                       {nomMenu}
-                    </button>
+                    </a>
                   );
                 })}
             </div>
@@ -2055,8 +2160,9 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                 className="flex gap-2 overflow-x-auto pb-4 mb-6 no-scrollbar border-b border-gray-100"
                 style={{ scrollSnapType: "x mandatory" }}
               >
-                <button
-                  onClick={() => setView(`${view.startsWith("informatique") ? "informatique" : "catalogue"}/${menuActuel}`)}
+                <a
+                  href={`/${view.startsWith("informatique") ? "informatique" : "catalogue"}/${genererSlug(menuActuel)}`}
+                  onClick={(e) => navigate(e, `${view.startsWith("informatique") ? "informatique" : "catalogue"}/${genererSlug(menuActuel)}`)}
                   className={`whitespace-nowrap shrink-0 snap-start px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all border ${
                     sousCatActuelle === "TOUS LES PRODUITS"
                       ? "bg-white text-gray-900 border-gray-900 shadow-sm"
@@ -2064,26 +2170,28 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                   }`}
                 >
                   Voir Tout
-                </button>
+                </a>
                 {menusWeb
                   .filter((m) => (m.PARENT || m.parent) === menuActuel)
                   .map((match) =>
                     (match.sous_categories || match.enfants || []).map(
-                      (sc, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() =>
-    setView(`${view.startsWith("informatique") ? "informatique" : "catalogue"}/${genererSlug(menuActuel)}/${genererSlug(sc)}`)
-  }
-                          className={`whitespace-nowrap shrink-0 snap-start px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all border ${
-                            sousCatActuelle === sc
-                              ? "bg-white text-gray-900 border-gray-900 shadow-sm"
-                              : "bg-white text-gray-400 border-gray-200 hover:text-gray-800"
-                          }`}
-                        >
-                          {sc}
-                        </button>
-                      )
+                      (sc, idx) => {
+                        const subPath = `${view.startsWith("informatique") ? "informatique" : "catalogue"}/${genererSlug(menuActuel)}/${genererSlug(sc)}`;
+                        return (
+                          <a
+                            key={idx}
+                            href={`/${subPath}`}
+                            onClick={(e) => navigate(e, subPath)}
+                            className={`whitespace-nowrap shrink-0 snap-start px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all border ${
+                              sousCatActuelle === sc
+                                ? "bg-white text-gray-900 border-gray-900 shadow-sm"
+                                : "bg-white text-gray-400 border-gray-200 hover:text-gray-800"
+                            }`}
+                          >
+                            {sc}
+                          </a>
+                        );
+                      }
                     )
                   )}
               </div>
@@ -2375,45 +2483,37 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
         {/* ======================================================= */}
         {view.startsWith("produit/") && produitSelectionne && (
           <div className="max-w-4xl mx-auto px-4 mt-8">
-            {/* 🚀 LE SUPER SEO PRODUIT EST ICI */}
-            <Helmet>
-              <title>{produitSelectionne.nom} | Hakimi Plus</title>
-              <meta name="description" content={produitSelectionne.description || `Achetez ${produitSelectionne.nom} chez Hakimi Plus Madagascar. Livraison rapide !`} />
-              <meta property="og:title" content={`${produitSelectionne.nom} - Hakimi Plus`} />
-              <meta property="og:description" content={produitSelectionne.description || `Disponible en stock ou sur commande.`} />
-              {produitSelectionne.image_url && (
-                <meta property="og:image" content={produitSelectionne.image_url} />
-              )}
-            </Helmet>
-            {/* FIL D'ARIANE PREMIUM */}
-            <nav className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-8 whitespace-nowrap overflow-x-auto no-scrollbar pb-2">
-              <button onClick={() => setView("accueil")} className="hover:text-gray-900 transition-colors flex items-center gap-1">
-                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                Accueil
-              </button>
-              <span className="text-gray-300">/</span>
-              <button onClick={() => {
-                const isTech = produitSelectionne.categorie_web?.toUpperCase() === "INFORMATIQUE";
-                setView(`${isTech ? "informatique" : "catalogue"}/${genererSlug(produitSelectionne.categorie_web || "Divers")}`);
-                window.scrollTo(0,0);
-              }} className="hover:text-gray-900 transition-colors">
-                {produitSelectionne.categorie_web || "Divers"}
-              </button>
-              {produitSelectionne.sous_categorie_web && (
-                 <>
-                   <span className="text-gray-300">/</span>
-                   <button onClick={() => {
-                     const isTech = produitSelectionne.categorie_web?.toUpperCase() === "INFORMATIQUE";
-                     setView(`${isTech ? "informatique" : "catalogue"}/${genererSlug(produitSelectionne.categorie_web)}/${genererSlug(produitSelectionne.sous_categorie_web)}`);
-                     window.scrollTo(0,0);
-                   }} className="hover:text-gray-900 transition-colors">
-                     {produitSelectionne.sous_categorie_web}
-                   </button>
-                 </>
-              )}
-              <span className="text-gray-300">/</span>
-              <span className="text-gray-900 truncate max-w-[150px] md:max-w-xs">{produitSelectionne.nom}</span>
-            </nav>
+           {/* FIL D'ARIANE PREMIUM */}
+            {(() => {
+              const isTech = produitSelectionne.categorie_web?.toUpperCase() === "INFORMATIQUE" || produitSelectionne.categorie_web?.toUpperCase() === "SERVICES";
+              const basePath = isTech ? "informatique" : "catalogue";
+              const catPath = `${basePath}/${genererSlug(produitSelectionne.categorie_web || "Divers")}`;
+              const subPath = produitSelectionne.sous_categorie_web
+                ? `${catPath}/${genererSlug(produitSelectionne.sous_categorie_web)}`
+                : null;
+              return (
+                <nav className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-8 whitespace-nowrap overflow-x-auto no-scrollbar pb-2">
+                  <a href="/" onClick={(e) => navigate(e, "accueil")} className="hover:text-gray-900 transition-colors flex items-center gap-1">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    Accueil
+                  </a>
+                  <span className="text-gray-300">/</span>
+                  <a href={`/${catPath}`} onClick={(e) => navigate(e, catPath)} className="hover:text-gray-900 transition-colors">
+                    {produitSelectionne.categorie_web || "Divers"}
+                  </a>
+                  {subPath && (
+                    <>
+                      <span className="text-gray-300">/</span>
+                      <a href={`/${subPath}`} onClick={(e) => navigate(e, subPath)} className="hover:text-gray-900 transition-colors">
+                        {produitSelectionne.sous_categorie_web}
+                      </a>
+                    </>
+                  )}
+                  <span className="text-gray-300">/</span>
+                  <span className="text-gray-900 truncate max-w-[150px] md:max-w-xs">{produitSelectionne.nom}</span>
+                </nav>
+              );
+            })()}
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col md:flex-row">
               <div className="md:w-1/2 bg-gray-50 flex items-center justify-center p-6">
                 {produitSelectionne.image_url ? (
@@ -2432,9 +2532,9 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
                   {produitSelectionne.categorie_web || "Divers"}
                 </p>
-                <h2 className="text-2xl md:text-3xl font-black text-gray-800 mb-4">
+                <h1 className="text-2xl md:text-3xl font-black text-gray-800 mb-4">
                   {produitSelectionne.nom}
-                </h2>
+                </h1>
                 
                 {/* 1. LE PRIX (Immédiatement visible) */}
                 <div className="mb-6">
@@ -3185,12 +3285,28 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
         {/* ======================================================= */}
         {view === "livraison" && (
           <div className="max-w-3xl mx-auto px-4 mt-8 mb-16">
-            <h2 className="text-2xl md:text-3xl font-black uppercase text-[#800020] mb-6">
+            <h1 className="text-2xl md:text-3xl font-black uppercase text-[#800020] mb-6">
               Informations de Livraison
-            </h2>
+            </h1>
             <div className="bg-white p-6 md:p-10 rounded-[2rem] shadow-sm border border-gray-100">
               {texteLivraison ? (
                 renderFormattedText(texteLivraison)
+              ) : (
+                <p className="text-gray-500 italic text-center py-10">
+                  À venir.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+        {view === "conditions" && (
+          <div className="max-w-3xl mx-auto px-4 mt-8 mb-16">
+            <h1 className="text-2xl md:text-3xl font-black uppercase text-[#800020] mb-6">
+              Conditions Générales
+            </h1>
+            <div className="bg-white p-6 md:p-10 rounded-[2rem] shadow-sm border border-gray-100">
+              {texteConditions ? (
+                renderFormattedText(texteConditions)
               ) : (
                 <p className="text-gray-500 italic text-center py-10">
                   À venir.
@@ -3626,21 +3742,26 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
             <h3 className="font-bold text-xs text-white uppercase tracking-[0.2em] mb-6">
               Navigation
             </h3>
-            <ul className="space-y-4 text-sm text-gray-400 font-medium">
+           <ul className="space-y-4 text-sm text-gray-400 font-medium">
               <li>
-                <button onClick={() => setView("catalogue")} className="hover:text-white transition-colors">
+                <a href="/catalogue" onClick={(e) => navigate(e, "catalogue")} className="hover:text-white transition-colors">
                   Notre Catalogue
-                </button>
+                </a>
               </li>
               <li>
-                <button onClick={() => setView("livraison")} className="hover:text-white transition-colors">
+                <a href="/informatique" onClick={(e) => navigate(e, "informatique")} className="hover:text-white transition-colors">
+                  Informatique & Services
+                </a>
+              </li>
+              <li>
+                <a href="/livraison" onClick={(e) => navigate(e, "livraison")} className="hover:text-white transition-colors">
                   Informations de Livraison
-                </button>
+                </a>
               </li>
               <li>
-                <button onClick={() => setView("conditions")} className="hover:text-white transition-colors">
+                <a href="/conditions" onClick={(e) => navigate(e, "conditions")} className="hover:text-white transition-colors">
                   Conditions Générales
-                </button>
+                </a>
               </li>
             </ul>
           </div>

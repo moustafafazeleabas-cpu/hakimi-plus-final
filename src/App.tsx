@@ -1292,7 +1292,7 @@ alert("📥 Préparation de votre document... Le téléchargement va démarrer d
   }
 
 
-const canonicalUrl = `https://hakimiplus.com${view === "accueil" ? "/" : "/" + view}`;
+const canonicalUrl = `https://www.hakimiplus.com${view === "accueil" ? "/" : "/" + view}`;
 
   let seoTitle = "Hakimi Plus | Boutique en ligne à Antananarivo, Madagascar";
   let seoDesc = "Commandez en ligne chez Hakimi Plus : épicerie, produits frais, surgelés, informatique et services. Livraison rapide à Antananarivo et expédition en province à Madagascar.";

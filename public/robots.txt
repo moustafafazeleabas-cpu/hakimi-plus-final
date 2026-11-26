@@ -1,3 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /panier
+Disallow: /succes
+Disallow: /suivi/
+Disallow: /recherche_suivi
+
 Sitemap: https://www.hakimiplus.com/sitemap.xml
